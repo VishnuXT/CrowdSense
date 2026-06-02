@@ -9,6 +9,9 @@ import AdminLogin from "./pages/auth/Login";
 import AdminDashboard from "./pages/Dashboard/Dashboard";
 import AdminLayout from "./components/AdminLayout/AdminLayout";
 import Placeholder from "./pages/Placeholder/Placeholder";
+import AdminCategory from "./pages/AdminCategory/AdminCategory";
+import AdminLocation from "./pages/AdminLocation/AdminLocation";
+import AdminEvent from "./pages/AdminEvent/AdminEvent";
 
 import "./App.css";
 
@@ -30,9 +33,9 @@ function App() {
         {/* Admin Routes inside AdminLayout */}
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/categories" element={<Placeholder title="Categories" />} />
-          <Route path="/admin/locations" element={<Placeholder title="Locations" />} />
-          <Route path="/admin/events" element={<Placeholder title="Events" />} />
+          <Route path="/admin/categories" element={<AdminCategory />} />
+          <Route path="/admin/locations" element={<AdminLocation />} />
+          <Route path="/admin/events" element={<AdminEvent />} />
         </Route>
       </Routes>
     </BrowserRouter>

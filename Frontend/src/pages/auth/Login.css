@@ -1,0 +1,202 @@
+/* Admin Login specific styles to match design */
+.admin-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Use a subtle background pattern to simulate the map for now */
+  background-color: #f0f4f8;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding: 20px;
+}
+
+.admin-login-card {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 40px 40px 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header & Logo */
+.admin-login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.admin-logo-circle {
+  width: 64px;
+  height: 64px;
+  background-color: #1a6bf0; /* Bright blue */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.admin-logo-icon {
+  color: white;
+  font-size: 32px;
+}
+
+.admin-login-header h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.admin-login-header h2 span {
+  color: #1a6bf0;
+}
+
+.admin-login-header p {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Form Styles */
+.admin-login-form-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.admin-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-left {
+  position: absolute;
+  left: 14px;
+  color: #9ca3af;
+  font-size: 18px;
+}
+
+.admin-input-wrapper input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.admin-input-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+.admin-input-wrapper input:focus {
+  border-color: #1a6bf0;
+  box-shadow: 0 0 0 3px rgba(26, 107, 240, 0.1);
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle-btn:hover {
+  color: #6b7280;
+}
+
+/* Submit Button */
+.admin-login-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 14px;
+  background-color: #0b57d0; /* Match exact blue */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-login-btn:hover {
+  background-color: #0842a0;
+}
+
+/* Footer */
+.admin-login-footer {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.shield-icon {
+  color: #0b57d0;
+  font-size: 14px;
+}
+
+/* Public Viewer Button */
+.admin-public-viewer-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px;
+  background-color: transparent;
+  color: #0b57d0;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.admin-public-viewer-btn:hover {
+  background-color: #f0f6ff;
+  border-color: #0b57d0;
+  color: #0842a0;
+}
+
+.admin-public-viewer-btn svg {
+  font-size: 16px;
+}

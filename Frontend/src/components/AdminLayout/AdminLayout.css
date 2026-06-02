@@ -1,0 +1,18 @@
+.admin-layout-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc; /* light modern background */
+}
+
+.admin-main-wrapper {
+  flex: 1;
+  margin-left: 280px; /* offset for fixed sidebar width */
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-content-area {
+  padding: 40px;
+  flex: 1;
+  overflow-y: auto;
+}

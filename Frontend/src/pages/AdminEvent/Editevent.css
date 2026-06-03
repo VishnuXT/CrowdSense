@@ -1,0 +1,92 @@
+.edit-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1000;
+}
+
+.edit-popup-box {
+  width: 90%;
+  max-width: 850px;
+  background: white;
+  border-radius: 18px;
+  padding: 25px;
+}
+
+.edit-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.edit-close-btn {
+  border: none;
+  background: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+/* Form */
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.edit-form-grid label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.edit-form-grid input,
+.edit-form-grid select,
+.edit-form-grid textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+}
+
+.edit-form-grid input:focus,
+.edit-form-grid select:focus,
+.edit-form-grid textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.edit-popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.edit-cancel-btn {
+  border: 1px solid #cbd5e1;
+  background: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.edit-update-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.edit-update-btn:hover {
+  background: #1d4ed8;
+}

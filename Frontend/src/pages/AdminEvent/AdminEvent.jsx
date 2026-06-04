@@ -6,8 +6,10 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 import AddEvent from "./Addevent";
 import EditEvent from "./Editevent";
 import Adddel from "./Adddel";
+import { useToast } from "../../components/Toast/ToastProvider";
 
 const AdminEvent = () => {
+  const { showToast } = useToast();
   const [events, setEvents] = useState([
     {
       id: 1,
@@ -90,6 +92,7 @@ const AdminEvent = () => {
     setShowDeleteModal(false);
 
     setDeleteId(null);
+    showToast("Event deleted successfully");
   };
 
   /* =========================
@@ -97,7 +100,11 @@ const AdminEvent = () => {
   ========================= */
 
   const filteredEvents = events.filter((event) =>
-    event.eventName.toLowerCase().includes(searchTerm.toLowerCase()),
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.eventType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.crowdLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.status.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -111,7 +118,11 @@ const AdminEvent = () => {
           <p>Manage and monitor all events</p>
         </div>
 
-        <AddEvent events={events} setEvents={setEvents} />
+        <AddEvent
+          events={events}
+          setEvents={setEvents}
+          onEventAdded={() => showToast("Event added successfully")}
+        />
       </div>
 
       {/* ================= SEARCH ================= */}
@@ -236,6 +247,7 @@ const AdminEvent = () => {
         selectedEvent={selectedEvent}
         events={events}
         setEvents={setEvents}
+        onEventUpdated={() => showToast("Event updated successfully")}
       />
 
       {/* ================= DELETE EVENT ================= */}

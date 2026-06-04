@@ -6,29 +6,33 @@ import heroImg from "../../assets/images/hero.png";
 function About() {
   return (
     <div className="abt-page">
-      <div className="abt-layout">
-        
-        <div className="abt-left-content">
-          <div className="abt-tag-wrapper">
-            <div className="abt-line"></div>
-            <span className="abt-tag">ABOUT US</span>
+      <section
+        className="abt-hero"
+        style={{ backgroundImage: `url(${heroImg})` }}
+      >
+        <div className="abt-overlay">
+          <div className="abt-left-content">
+            <div className="abt-tag-wrapper">
+              <div className="abt-line"></div>
+              <span className="abt-tag">ABOUT US</span>
+            </div>
+
+            <h1 className="abt-title">Know Before<br/>You Go</h1>
+
+            <p className="abt-desc">
+              CrowdSense helps you make smarter travel decisions by providing
+              real-time information about crowd levels, traffic conditions,
+              and weather updates at popular places in{" "}
+              <span>Thiruvananthapuram.</span>
+            </p>
+
+            <p className="abt-desc">
+              Our mission is to reduce congestion, improve travel experience
+              and help you explore the city stress-free.
+            </p>
           </div>
-
-          <h1 className="abt-title">Know Before<br/>You Go</h1>
-
-          <p className="abt-desc">
-            CrowdSense is a smart crowd monitoring platform that helps users discover less crowded places before they travel. By combining crowd density data, traffic updates, weather information, and local events, CrowdSense enables safer and more convenient travel experiences.
-          </p>
-
-          <p className="abt-desc">
-            Our mission is to help people save time, avoid congestion, and make informed travel decisions through intelligent location analytics.
-          </p>
         </div>
-
-        <div className="abt-right-image">
-          <img src={heroImg} alt="Lighthouse View" />
-        </div>
-      </div>
+      </section>
 
       <div className="abt-footer">
         <Link to="/admin/login" className="abt-admin-link">

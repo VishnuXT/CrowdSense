@@ -1,16 +1,27 @@
 import "./Footer.css";
 import { Link } from "react-router-dom";
+import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
+import { MdDirectionsCar, MdPeopleAlt, MdWbSunny } from "react-icons/md";
 
 function Footer() {
   return (
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-brand">
-          <h2>
+          <Link to="/" className="footer-logo">
             Crowd<span>Sense</span>
-          </h2>
-          <p>Know Before You Go.</p>
-          <p>Empowering safer, smarter, and hassle-free travel.</p>
+          </Link>
+          <p className="footer-tagline">Know Before You Go.</p>
+          <p className="footer-description">
+            Empowering safer, smarter, and hassle-free travel with crowd,
+            traffic, and weather insights.
+          </p>
+
+          <div className="footer-feature-row">
+            <span><MdPeopleAlt /> Crowd</span>
+            <span><MdDirectionsCar /> Traffic</span>
+            <span><MdWbSunny /> Weather</span>
+          </div>
         </div>
         
         <div className="footer-links">
@@ -25,8 +36,18 @@ function Footer() {
         
         <div className="footer-contact">
           <h3>Contact Us</h3>
-          <p>Email: support@crowdsense.app</p>
-          <p>Phone: +91 98765 43210</p>
+          <p>
+            <FaEnvelope />
+            support@crowdsense.app
+          </p>
+          <p>
+            <FaPhoneAlt />
+            +91 98765 43210
+          </p>
+          <p>
+            <FaMapMarkerAlt />
+            Thiruvananthapuram, Kerala
+          </p>
         </div>
       </div>
       

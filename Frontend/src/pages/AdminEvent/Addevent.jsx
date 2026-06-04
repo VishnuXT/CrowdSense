@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Addevent.css";
 
-const Addevent = ({ events, setEvents }) => {
+const Addevent = ({ events, setEvents, onEventAdded }) => {
   const [showPopup, setShowPopup] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -31,6 +31,7 @@ const Addevent = ({ events, setEvents }) => {
     };
 
     setEvents([...events, newEvent]);
+    onEventAdded?.();
 
     setFormData({
       id: "",

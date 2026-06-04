@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaUmbrellaBeach, FaSearch } from "react-icons/fa";
-import { MdPeopleAlt, MdDirectionsCar, MdWbSunny } from "react-icons/md";
+import { MdKeyboardArrowDown, MdPeopleAlt, MdDirectionsCar, MdWbSunny } from "react-icons/md";
 import "./Home.css";
 import heroImg from "../../assets/images/hero.png";
 
@@ -29,6 +29,7 @@ function Home() {
                   <select>
                     <option>Thiruvananthapuram</option>
                   </select>
+                  <MdKeyboardArrowDown className="select-arrow" />
                 </div>
               </div>
 
@@ -39,6 +40,7 @@ function Home() {
                   <select>
                     <option>Beaches</option>
                   </select>
+                  <MdKeyboardArrowDown className="select-arrow" />
                 </div>
               </div>
 

@@ -25,7 +25,9 @@ INSERT INTO locations (
     description,
     latitude,
     longitude,
-    image_url
+    popularity_score,
+    image_url,
+    status
 )
 VALUES
     (
@@ -36,7 +38,9 @@ VALUES
         'Popular shopping mall in Thiruvananthapuram.',
         8.52410000,
         76.93660000,
-        NULL
+        50,
+        'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800',
+        'ACTIVE'
     ),
     (
         2,
@@ -46,7 +50,9 @@ VALUES
         'Historic temple and major religious destination.',
         8.48280000,
         76.94360000,
-        NULL
+        50,
+        'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800',
+        'ACTIVE'
     ),
     (
         3,
@@ -56,7 +62,9 @@ VALUES
         'Popular beach destination known for the lighthouse and coastline.',
         8.40030000,
         76.97800000,
-        NULL
+        60,
+        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+        'ACTIVE'
     )
 ON CONFLICT (id) DO UPDATE
 SET
@@ -66,7 +74,9 @@ SET
     description = EXCLUDED.description,
     latitude = EXCLUDED.latitude,
     longitude = EXCLUDED.longitude,
-    image_url = EXCLUDED.image_url;
+    popularity_score = EXCLUDED.popularity_score,
+    image_url = EXCLUDED.image_url,
+    status = EXCLUDED.status;
 
 INSERT INTO events (
     id,

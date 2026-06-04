@@ -8,6 +8,8 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
     address: "",
     latitude: "",
     longitude: "",
+    popularityLevel: "Medium",
+    imageUrl: "",
   });
 
   const handleChange = (e) => {
@@ -25,7 +27,9 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
       !formData.category.trim() ||
       !formData.address.trim() ||
       !formData.latitude.trim() ||
-      !formData.longitude.trim()
+      !formData.longitude.trim() ||
+      !formData.popularityLevel.trim() ||
+      !formData.imageUrl.trim()
     ) {
       alert("Please fill all required fields");
       return;
@@ -38,6 +42,8 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
       address: formData.address,
       latitude: formData.latitude,
       longitude: formData.longitude,
+      popularityLevel: formData.popularityLevel,
+      imageUrl: formData.imageUrl,
       status: "Active",
     };
 
@@ -162,6 +168,38 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
               />
             </div>
 
+          </div>
+
+          <div className="form-group">
+            <label>
+              Popularity Level <span className="required">*</span>
+            </label>
+
+            <select
+              name="popularityLevel"
+              value={formData.popularityLevel}
+              onChange={handleChange}
+            >
+              <option value="Very Low">Very Low</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Very High">Very High</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>
+              Location Image URL <span className="required">*</span>
+            </label>
+
+            <input
+              type="text"
+              name="imageUrl"
+              placeholder="Enter location image URL (e.g. https://unsplash.com/...)"
+              value={formData.imageUrl}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="form-group">

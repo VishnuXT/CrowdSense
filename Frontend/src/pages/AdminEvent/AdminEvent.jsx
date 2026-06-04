@@ -50,17 +50,66 @@ const AdminEvent = () => {
       status: "Inactive",
       description: "Regional football championship with multiple teams.",
     },
+
+    {
+      id: 4,
+      eventName: "Christmas Celebration",
+      eventType: "Festive",
+      location: "Lulu Mall",
+      eventDate: "2026-12-25",
+      startTime: "10:00",
+      endTime: "22:00",
+      crowdLevel: "High",
+      status: "Active",
+      description: "Grand Christmas celebration and shopping festival.",
+    },
+
+    {
+      id: 5,
+      eventName: "New Year Carnival",
+      eventType: "Entertainment",
+      location: "Kovalam Beach",
+      eventDate: "2026-12-31",
+      startTime: "18:00",
+      endTime: "02:00",
+      crowdLevel: "Very High",
+      status: "Active",
+      description: "New Year beach party and countdown event.",
+    },
+
+    {
+      id: 6,
+      eventName: "Food & Craft Fair",
+      eventType: "Exhibition",
+      location: "Kanakakunnu Ground",
+      eventDate: "2026-11-05",
+      startTime: "11:00",
+      endTime: "21:00",
+      crowdLevel: "Medium",
+      status: "Active",
+      description: "Traditional food stall fair and handcraft showcase.",
+    },
+
+    {
+      id: 7,
+      eventName: "Independence Day Parade",
+      eventType: "National",
+      location: "Central Stadium",
+      eventDate: "2026-08-15",
+      startTime: "08:00",
+      endTime: "12:00",
+      crowdLevel: "Medium",
+      status: "Inactive",
+      description: "Annual flag hoisting and student parade.",
+    },
   ]);
 
   const [showEditPopup, setShowEditPopup] = useState(false);
-
   const [selectedEvent, setSelectedEvent] = useState(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [deleteId, setDeleteId] = useState(null);
-
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   /* =========================
      EDIT EVENT
@@ -107,6 +156,13 @@ const AdminEvent = () => {
     event.status.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
+  const activePage = Math.min(currentPage, totalPages || 1);
+  const indexOfLastItem = activePage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentEvents = filteredEvents.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="admin-event-page">
       {/* ================= HEADER ================= */}
@@ -133,7 +189,10 @@ const AdminEvent = () => {
           placeholder="Search events..."
           className="search-input"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
@@ -173,8 +232,8 @@ const AdminEvent = () => {
             </thead>
 
             <tbody>
-              {filteredEvents.length > 0 ? (
-                filteredEvents.map((event) => (
+              {currentEvents.length > 0 ? (
+                currentEvents.map((event) => (
                   <tr key={event.id}>
                     <td>{event.eventName}</td>
 
@@ -237,6 +296,37 @@ const AdminEvent = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={activePage === 1}
+              className="page-btn prev-btn"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`page-btn ${activePage === page ? "active" : ""}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={activePage === totalPages}
+              className="page-btn next-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ================= EDIT EVENT ================= */}

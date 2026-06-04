@@ -15,8 +15,8 @@ const AdminLocation = () => {
 
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [locations, setLocations] = useState([
     {
@@ -26,6 +26,8 @@ const AdminLocation = () => {
       address: "West Nada, Fort, Thiruvananthapuram",
       latitude: "8.4850",
       longitude: "76.9496",
+      popularityLevel: "High",
+      imageUrl: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800",
       status: "Active",
     },
     {
@@ -35,6 +37,8 @@ const AdminLocation = () => {
       address: "Kovalam, Thiruvananthapuram",
       latitude: "8.4003",
       longitude: "76.9780",
+      popularityLevel: "Very High",
+      imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
       status: "Active",
     },
     {
@@ -44,6 +48,8 @@ const AdminLocation = () => {
       address: "NH 66, Kazhakkoottam, Thiruvananthapuram",
       latitude: "8.5603",
       longitude: "76.8870",
+      popularityLevel: "High",
+      imageUrl: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800",
       status: "Inactive",
     },
     {
@@ -53,6 +59,8 @@ const AdminLocation = () => {
       address: "Kanakakunnu, Thiruvananthapuram",
       latitude: "8.4972",
       longitude: "76.9523",
+      popularityLevel: "Medium",
+      imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800",
       status: "Active",
     },
     {
@@ -62,7 +70,42 @@ const AdminLocation = () => {
       address: "Attukal, Trivandrum",
       latitude: "8.4951",
       longitude: "76.9536",
+      popularityLevel: "Medium",
+      imageUrl: "https://images.unsplash.com/photo-1545239351-ef35f43d514b?w=800",
       status: "Inactive",
+    },
+    {
+      id: 6,
+      placeName: "Centre Square Mall",
+      category: "Commercial Areas",
+      address: "MG Road, Kochi",
+      latitude: "9.9816",
+      longitude: "76.2999",
+      popularityLevel: "Medium",
+      imageUrl: "https://images.unsplash.com/photo-1581553674786-63febb0e5db7?w=800",
+      status: "Active",
+    },
+    {
+      id: 7,
+      placeName: "Shanghumugham Beach",
+      category: "Tourist Places",
+      address: "Shanghumugham, Trivandrum",
+      latitude: "8.4822",
+      longitude: "76.9123",
+      popularityLevel: "Low",
+      imageUrl: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800",
+      status: "Active",
+    },
+    {
+      id: 8,
+      placeName: "Mall of Travancore",
+      category: "Commercial Areas",
+      address: "Chackai, Trivandrum",
+      latitude: "8.4887",
+      longitude: "76.9492",
+      popularityLevel: "Medium",
+      imageUrl: "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800",
+      status: "Active",
     },
   ]);
 
@@ -125,6 +168,13 @@ const AdminLocation = () => {
       a.placeName.localeCompare(b.placeName)
     );
 
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(filteredLocations.length / itemsPerPage);
+  const activePage = Math.min(currentPage, totalPages || 1);
+  const indexOfLastItem = activePage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentLocations = filteredLocations.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="admin-location-page">
 
@@ -151,9 +201,10 @@ const AdminLocation = () => {
           placeholder="Search location..."
           className="search-input"
           value={searchTerm}
-          onChange={(e) =>
-            setSearchTerm(e.target.value)
-          }
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
@@ -180,6 +231,7 @@ const AdminLocation = () => {
                 <th>Address</th>
                 <th>Latitude</th>
                 <th>Longitude</th>
+                <th>Popularity</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -187,7 +239,7 @@ const AdminLocation = () => {
 
             <tbody>
 
-              {filteredLocations.map((location) => (
+              {currentLocations.map((location) => (
                 <tr key={location.id}>
 
                   <td>{location.placeName}</td>
@@ -199,6 +251,8 @@ const AdminLocation = () => {
                   <td>{location.latitude}</td>
 
                   <td>{location.longitude}</td>
+
+                  <td>{location.popularityLevel || "Medium"}</td>
 
                   <td>
                     <span
@@ -241,9 +295,9 @@ const AdminLocation = () => {
                 </tr>
               ))}
 
-              {filteredLocations.length === 0 && (
+              {currentLocations.length === 0 && (
                 <tr>
-                  <td colSpan="7" className="no-data">
+                  <td colSpan="8" className="no-data">
                     No locations found
                   </td>
                 </tr>
@@ -254,6 +308,37 @@ const AdminLocation = () => {
           </table>
 
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={activePage === 1}
+              className="page-btn prev-btn"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`page-btn ${activePage === page ? "active" : ""}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={activePage === totalPages}
+              className="page-btn next-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Add Location Popup */}

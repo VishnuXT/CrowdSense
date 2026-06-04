@@ -16,9 +16,13 @@ def weather_for_location(location_id: int):
     if not location:
         raise HTTPException(status_code=404, detail="Location not found")
 
-    data = fetch_weather_by_coords(location["latitude"], location["longitude"])
-    if not data:
+    weather = fetch_weather_by_coords(location["latitude"], location["longitude"])
+    if not weather:
         raise HTTPException(status_code=502, detail="Failed to fetch weather data")
 
-    data["location"] = location["name"]
-    return data
+    return {
+        "location": location["name"],
+        "temperature": weather["temperature"],
+        "humidity": weather["humidity"],
+        "condition": weather["condition"],
+    }

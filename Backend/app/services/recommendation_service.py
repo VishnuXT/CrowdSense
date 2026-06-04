@@ -12,8 +12,9 @@ def get_recommendations_for_location(location_id: int) -> Optional[dict]:
     if not current_location:
         return None
 
+    category_id = current_location["category_id"]
     alternatives = []
-    for location in get_locations_for_recommendations(location_id):
+    for location in get_locations_for_recommendations(location_id, category_id):
         crowd_data = get_crowd_score_for_location(location["id"])
         alternatives.append(
             {

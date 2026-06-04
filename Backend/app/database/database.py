@@ -14,7 +14,8 @@ except Exception:
 
 def get_database_url() -> str:
     backend_dir = Path(__file__).resolve().parents[2]
-    load_dotenv(backend_dir / ".env")
+    load_dotenv(backend_dir / ".env.example")
+    load_dotenv(backend_dir / ".env", override=True)
 
     database_url = os.getenv("DATABASE_URL")
     if not database_url:

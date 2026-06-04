@@ -19,6 +19,8 @@
   background: white;
   border-radius: 18px;
   padding: 25px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .edit-popup-header {

@@ -256,3 +256,43 @@
     font-size: 15px;
   }
 }
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.page-btn:disabled {
+  color: #94a3b8;
+  background: #f8fafc;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.page-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}

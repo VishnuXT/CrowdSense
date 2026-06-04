@@ -63,6 +63,8 @@
   
   .popup-body {
     padding: 24px 28px;
+    max-height: 60vh;
+    overflow-y: auto;
   }
   
   /* Form */

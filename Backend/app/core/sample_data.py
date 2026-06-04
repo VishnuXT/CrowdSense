@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 SAMPLE_LOCATIONS = [
@@ -45,4 +45,4 @@ def get_sample_location(location_id: int):
 
 
 def get_updated_at() -> str:
-    return datetime.utcnow().replace(microsecond=0).isoformat()
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()

@@ -13,6 +13,8 @@ const EditLocation = ({
     address: location.address,
     latitude: location.latitude,
     longitude: location.longitude,
+    popularityLevel: location.popularityLevel || "Medium",
+    imageUrl: location.imageUrl || "",
   });
 
   const handleChange = (e) => {
@@ -129,6 +131,35 @@ const EditLocation = ({
               />
             </div>
 
+          </div>
+
+          <div className="form-group">
+            <label>Popularity Level *</label>
+
+            <select
+              name="popularityLevel"
+              value={formData.popularityLevel}
+              onChange={handleChange}
+            >
+              <option value="Very Low">Very Low</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Very High">Very High</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Location Image URL *</label>
+
+            <input
+              type="text"
+              name="imageUrl"
+              placeholder="Enter location image URL"
+              value={formData.imageUrl}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="modal-footer">

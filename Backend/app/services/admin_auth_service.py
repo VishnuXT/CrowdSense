@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 
 def create_admin_token(admin_id: int, email: str) -> str:
@@ -11,10 +11,11 @@ def create_admin_token(admin_id: int, email: str) -> str:
     payload = {
         "sub": admin_id,
         "email": email,
-        "exp": (datetime.utcnow() + timedelta(hours=8)).isoformat(),
+        "exp": (datetime.now(timezone.utc) + timedelta(hours=8)).isoformat(),
     }
     payload_json = json.dumps(payload, separators=(",", ":")).encode()
     payload_b64 = base64.urlsafe_b64encode(payload_json).decode().rstrip("=")
     signature = hmac.new(secret.encode(), payload_b64.encode(), hashlib.sha256)
     signature_b64 = base64.urlsafe_b64encode(signature.digest()).decode().rstrip("=")
     return f"{payload_b64}.{signature_b64}"
+

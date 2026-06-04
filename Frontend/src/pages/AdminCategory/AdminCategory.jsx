@@ -19,8 +19,8 @@ const AdminCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [deleteId, setDeleteId] = useState(null);
-
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [categories, setCategories] = useState([
     {
@@ -49,6 +49,27 @@ const AdminCategory = () => {
       name: "Public Places",
       description: "Parks, grounds and public places",
       status: "Active",
+    },
+
+    {
+      id: 5,
+      name: "Entertainment",
+      description: "Movie theaters, malls and gaming zones",
+      status: "Active",
+    },
+
+    {
+      id: 6,
+      name: "Sports & Parks",
+      description: "Stadiums, sports complexes and recreational parks",
+      status: "Active",
+    },
+
+    {
+      id: 7,
+      name: "Nature & Outdoors",
+      description: "Hill stations, waterfalls and forest reserves",
+      status: "Inactive",
     },
   ]);
 
@@ -109,6 +130,13 @@ const AdminCategory = () => {
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const activePage = Math.min(currentPage, totalPages || 1);
+  const indexOfLastItem = activePage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="admin-category-page">
       {/* ================= HEADER ================= */}
@@ -117,7 +145,6 @@ const AdminCategory = () => {
         <div>
           <h2>Category Management</h2>
 
-          <p>Add, edit and manage categories</p>
         </div>
 
         <button
@@ -135,7 +162,10 @@ const AdminCategory = () => {
           type="text"
           placeholder="Search category..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
           className="search-input"
         />
       </div>
@@ -170,8 +200,8 @@ const AdminCategory = () => {
             </thead>
 
             <tbody>
-              {filteredCategories.length > 0 ? (
-                filteredCategories.map((category) => (
+              {currentCategories.length > 0 ? (
+                currentCategories.map((category) => (
                   <tr key={category.id}>
                     <td>{category.name}</td>
 
@@ -226,6 +256,37 @@ const AdminCategory = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={activePage === 1}
+              className="page-btn prev-btn"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`page-btn ${activePage === page ? "active" : ""}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={activePage === totalPages}
+              className="page-btn next-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ================= ADD CATEGORY ================= */}

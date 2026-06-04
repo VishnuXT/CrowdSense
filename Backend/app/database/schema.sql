@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS events, locations, categories, admins CASCADE;
+
 CREATE TABLE IF NOT EXISTS admins (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -21,7 +23,9 @@ CREATE TABLE IF NOT EXISTS locations (
     description TEXT,
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
+    popularity_score INTEGER DEFAULT 35,
     image_url TEXT,
+    status VARCHAR(30) DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_location_category

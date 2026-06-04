@@ -1,6 +1,6 @@
 import "./Navbar.css";
 import { Link, useLocation } from "react-router-dom";
-import { MdPeopleAlt } from "react-icons/md";
+import { FaUsers } from "react-icons/fa";
 
 function Navbar() {
   const location = useLocation();
@@ -8,9 +8,9 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <MdPeopleAlt className="logo-icon" />
+        <FaUsers className="logo-icon" />
         <div className="logo-text">
-          <h2>CrowdSense</h2>
+          <h2>Crowd<span>Sense</span></h2>
           <p>Know Before You Go</p>
         </div>
       </div>

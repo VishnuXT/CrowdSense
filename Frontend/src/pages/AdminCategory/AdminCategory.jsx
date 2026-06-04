@@ -6,8 +6,10 @@ import "./AdminCategory.css";
 import AddCategory from "./AddCategory";
 import Addedit from "./Addedit";
 import Adddel from "./Adddel";
+import { useToast } from "../../components/Toast/ToastProvider";
 
 const AdminCategory = () => {
+  const { showToast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -56,6 +58,7 @@ const AdminCategory = () => {
 
   const addCategory = (newCategory) => {
     setCategories((prev) => [...prev, newCategory]);
+    showToast("Category added successfully");
   };
 
   /* =========================
@@ -68,6 +71,7 @@ const AdminCategory = () => {
         cat.id === updatedCategory.id ? updatedCategory : cat,
       ),
     );
+    showToast("Category updated successfully");
   };
 
   /* =========================
@@ -90,6 +94,7 @@ const AdminCategory = () => {
     setShowDeleteModal(false);
 
     setDeleteId(null);
+    showToast("Category deleted successfully");
   };
 
   /* =========================
@@ -98,7 +103,9 @@ const AdminCategory = () => {
 
   const filteredCategories = categories
     .filter((category) =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.status.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 

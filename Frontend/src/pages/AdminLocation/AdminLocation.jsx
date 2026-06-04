@@ -3,10 +3,12 @@ import "./AdminLocation.css";
 import AddLocationPopup from "./AddLocationPopup";
 import EditLocation from "./EditLocation";
 import LocationDelete from "./DeleteLocation";
+import { useToast } from "../../components/Toast/ToastProvider";
 
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 const AdminLocation = () => {
+  const { showToast } = useToast();
   const [showPopup, setShowPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
@@ -71,6 +73,7 @@ const AdminLocation = () => {
       ...prevLocations,
       newLocation,
     ]);
+    showToast("Location added successfully");
   };
 
   // Edit Location
@@ -83,6 +86,7 @@ const AdminLocation = () => {
           : location
       )
     );
+    showToast("Location updated successfully");
   };
 
   // Delete Location
@@ -96,6 +100,7 @@ const AdminLocation = () => {
 
     setShowDeletePopup(false);
     setDeleteId(null);
+    showToast("Location deleted successfully");
   };
 
   // Search + Sort
@@ -104,6 +109,12 @@ const AdminLocation = () => {
     .filter(
       (location) =>
         location.placeName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        location.category
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        location.status
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         location.address
@@ -154,7 +165,7 @@ const AdminLocation = () => {
           <h3>Location List</h3>
 
           <div className="total-locations">
-            Total Locations : {locations.length}
+            Total Locations : {filteredLocations.length}
           </div>
         </div>
 
@@ -229,6 +240,14 @@ const AdminLocation = () => {
 
                 </tr>
               ))}
+
+              {filteredLocations.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="no-data">
+                    No locations found
+                  </td>
+                </tr>
+              )}
 
             </tbody>
 

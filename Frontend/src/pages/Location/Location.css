@@ -79,6 +79,16 @@
   gap: 15px;
 }
 
+.loc-empty-state {
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 30px;
+  color: #64748b;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
 .loc-card {
   background: white;
   border: 1px solid #f1f5f9;

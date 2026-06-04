@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { MdPeopleAlt } from "react-icons/md";
@@ -41,6 +42,7 @@ const locations = [
 
 function Location() {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const getCrowdBadge = (level) => {
     switch(level) {
@@ -50,6 +52,19 @@ function Location() {
       default: return "";
     }
   };
+
+  const filteredLocations = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    if (!query) return locations;
+
+    return locations.filter((item) =>
+      item.name.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query) ||
+      item.address.toLowerCase().includes(query) ||
+      item.crowdLevel.toLowerCase().includes(query),
+    );
+  }, [searchTerm]);
 
   return (
     <div className="location-page">
@@ -72,11 +87,13 @@ function Location() {
             type="text"
             placeholder="Search place..."
             className="loc-search-box"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
         <div className="loc-list">
-          {locations.map((item) => (
+          {filteredLocations.map((item) => (
             <div className="loc-card" key={item.id}>
               <img src={item.image} alt={item.name} className="loc-card-img" />
 
@@ -107,6 +124,12 @@ function Location() {
               </div>
             </div>
           ))}
+
+          {filteredLocations.length === 0 && (
+            <div className="loc-empty-state">
+              No locations found
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ const Editevent = ({
   selectedEvent,
   events,
   setEvents,
+  onEventUpdated,
 }) => {
   const [formData, setFormData] = useState({
     id: "",
@@ -40,6 +41,7 @@ const Editevent = ({
     );
 
     setEvents(updatedEvents);
+    onEventUpdated?.();
 
     setShowEditPopup(false);
   };

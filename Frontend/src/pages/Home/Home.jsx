@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { getCategories } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaUmbrellaBeach, FaSearch } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdPeopleAlt, MdDirectionsCar, MdWbSunny } from "react-icons/md";
@@ -6,17 +8,38 @@ import heroImg from "../../assets/images/hero.png";
 
 function Home() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories();
+
+      setCategories(response.data);
+
+      if (response.data.length > 0) {
+        setSelectedCategory(response.data[0].id);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   return (
     <div className="home-page">
-      <div 
-        className="home-hero-bg" 
+      <div
+        className="home-hero-bg"
         style={{ backgroundImage: `url(${heroImg})` }}
       >
         <div className="home-overlay">
-          
+
           <div className="home-content">
-            
+
             {/* Left Card */}
             <div className="home-search-card">
               <h2>Find Less Crowded Places</h2>
@@ -37,14 +60,21 @@ function Home() {
                 <label>Select Category</label>
                 <div className="input-with-icon">
                   <FaUmbrellaBeach className="input-icon text-green" />
-                  <select>
-                    <option>Beaches</option>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                   <MdKeyboardArrowDown className="select-arrow" />
                 </div>
               </div>
 
-              <button 
+              <button
                 className="home-explore-btn"
                 onClick={() => navigate("/locations")}
               >
@@ -62,7 +92,7 @@ function Home() {
 
             {/* Right Text */}
             <div className="home-right-text">
-              <h1>Know Before<br/>You Go</h1>
+              <h1>Know Before<br />You Go</h1>
               <p>
                 Check crowd conditions, traffic congestion and weather updates before visiting public places in <span>Thiruvananthapuram</span>.
               </p>
@@ -81,7 +111,7 @@ function Home() {
                 <p>Real-time</p>
               </div>
             </div>
-            
+
             <div className="status-divider"></div>
 
             <div className="status-item">
@@ -106,7 +136,7 @@ function Home() {
               </div>
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>

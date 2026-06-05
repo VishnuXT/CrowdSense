@@ -1,7 +1,6 @@
 import "./StatusFilter.css";
 
 const OPTIONS = [
-  { value: "all", label: "All" },
   { value: "Active", label: "Active" },
   { value: "Inactive", label: "Inactive" },
 ];

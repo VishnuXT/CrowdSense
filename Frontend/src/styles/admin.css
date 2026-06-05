@@ -61,6 +61,14 @@
   margin-bottom: 24px;
 }
 
+.filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .search-input {
   width: 420px;
   height: 48px;
@@ -197,8 +205,17 @@
   color: #ef4444;
 }
 
+.reactivate-btn {
+  color: #94a3b8;
+}
+
+.reactivate-btn:hover {
+  color: #64748b;
+}
+
 .edit-btn:hover,
-.delete-btn:hover {
+.delete-btn:hover,
+.reactivate-btn:hover {
   transform: scale(1.1);
 }
 

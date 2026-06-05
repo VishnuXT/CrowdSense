@@ -1,0 +1,50 @@
+.deactivate-modal {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.deactivate-modal h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.deactivate-modal p {
+  margin: 0 0 24px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.deactivate-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.deactivate-modal-buttons .cancel-btn {
+  padding: 10px 20px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #334155;
+}
+
+.deactivate-modal-buttons .deactivate-btn-popup {
+  padding: 10px 20px;
+  border: none;
+  background: #ef4444;
+  color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.deactivate-modal-buttons .deactivate-btn-popup:hover {
+  background: #dc2626;
+}

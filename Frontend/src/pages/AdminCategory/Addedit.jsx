@@ -5,7 +5,6 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
   const [formData, setFormData] = useState({
     name: category.name,
     description: category.description,
-    status: category.status,
   });
 
   const handleChange = (e) => {
@@ -20,7 +19,8 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
 
     onUpdateCategory({
       ...category,
-      ...formData,
+      name: formData.name,
+      description: formData.description,
     });
 
     onClose();
@@ -59,20 +59,6 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
               value={formData.description}
               onChange={handleChange}
             />
-          </div>
-
-          <div className="form-group">
-            <label>Status</label>
-
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="Active">Active</option>
-
-              <option value="Inactive">Inactive</option>
-            </select>
           </div>
 
           <div className="modal-footer">

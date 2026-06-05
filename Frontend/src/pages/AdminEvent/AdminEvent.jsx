@@ -5,7 +5,8 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 import AddEvent from "./Addevent";
 import EditEvent from "./Editevent";
-import Adddel from "./Adddel";
+import DeactivateConfirmModal from "../../components/DeactivateConfirmModal/DeactivateConfirmModal";
+import StatusFilter from "../../components/StatusFilter/StatusFilter";
 import { useToast } from "../../components/Toast/ToastProvider";
 
 const AdminEvent = () => {
@@ -106,9 +107,10 @@ const AdminEvent = () => {
 
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [deactivateId, setDeactivateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   /* =========================
@@ -125,36 +127,46 @@ const AdminEvent = () => {
      DELETE EVENT
   ========================= */
 
-  const handleDelete = (id) => {
-    setDeleteId(id);
-
-    setShowDeleteModal(true);
+  const openDeactivateModal = (id) => {
+    setDeactivateId(id);
+    setShowDeactivateModal(true);
   };
 
-  /* =========================
-     CONFIRM DELETE
-  ========================= */
+  const confirmDeactivate = () => {
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === deactivateId ? { ...event, status: "Inactive" } : event,
+      ),
+    );
+    setShowDeactivateModal(false);
+    setDeactivateId(null);
+    showToast("Event deactivated successfully");
+  };
 
-  const confirmDelete = () => {
-    setEvents(events.filter((event) => event.id !== deleteId));
-
-    setShowDeleteModal(false);
-
-    setDeleteId(null);
-    showToast("Event deleted successfully");
+  const reactivateEvent = (id) => {
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === id ? { ...event, status: "Active" } : event,
+      ),
+    );
+    showToast("Event reactivated successfully");
   };
 
   /* =========================
      SEARCH
   ========================= */
 
-  const filteredEvents = events.filter((event) =>
-    event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.eventType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.crowdLevel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.status.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredEvents = events.filter((event) => {
+    const query = searchTerm.toLowerCase();
+    const matchesSearch =
+      event.eventName.toLowerCase().includes(query) ||
+      event.eventType.toLowerCase().includes(query) ||
+      event.location.toLowerCase().includes(query) ||
+      event.crowdLevel.toLowerCase().includes(query);
+    const matchesStatus =
+      statusFilter === "all" || event.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
@@ -183,7 +195,7 @@ const AdminEvent = () => {
 
       {/* ================= SEARCH ================= */}
 
-      <div className="search-section">
+      <div className="search-section filters-row">
         <input
           type="text"
           placeholder="Search events..."
@@ -191,6 +203,13 @@ const AdminEvent = () => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+        <StatusFilter
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
             setCurrentPage(1);
           }}
         />
@@ -277,8 +296,24 @@ const AdminEvent = () => {
                         {/* Delete */}
 
                         <button
-                          className="delete-btn"
-                          onClick={() => handleDelete(event.id)}
+                          type="button"
+                          className={
+                            event.status === "Active"
+                              ? "delete-btn"
+                              : "delete-btn reactivate-btn"
+                          }
+                          title={
+                            event.status === "Active"
+                              ? "Deactivate event"
+                              : "Reactivate event"
+                          }
+                          onClick={() => {
+                            if (event.status === "Active") {
+                              openDeactivateModal(event.id);
+                            } else {
+                              reactivateEvent(event.id);
+                            }
+                          }}
                         >
                           <FiTrash2 />
                         </button>
@@ -342,10 +377,14 @@ const AdminEvent = () => {
 
       {/* ================= DELETE EVENT ================= */}
 
-      {showDeleteModal && (
-        <Adddel
-          onClose={() => setShowDeleteModal(false)}
-          onDelete={confirmDelete}
+      {showDeactivateModal && (
+        <DeactivateConfirmModal
+          entityLabel="Event"
+          onClose={() => {
+            setShowDeactivateModal(false);
+            setDeactivateId(null);
+          }}
+          onConfirm={confirmDeactivate}
         />
       )}
     </div>

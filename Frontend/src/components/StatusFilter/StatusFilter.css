@@ -1,0 +1,36 @@
+.status-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-filter-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  margin-right: 4px;
+}
+
+.status-filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-filter-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.status-filter-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}

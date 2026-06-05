@@ -5,7 +5,8 @@ import "./AdminCategory.css";
 
 import AddCategory from "./AddCategory";
 import Addedit from "./Addedit";
-import Adddel from "./Adddel";
+import DeactivateConfirmModal from "../../components/DeactivateConfirmModal/DeactivateConfirmModal";
+import StatusFilter from "../../components/StatusFilter/StatusFilter";
 import { useToast } from "../../components/Toast/ToastProvider";
 
 const AdminCategory = () => {
@@ -14,12 +15,13 @@ const AdminCategory = () => {
 
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const [deleteId, setDeleteId] = useState(null);
+  const [deactivateId, setDeactivateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [categories, setCategories] = useState([
@@ -95,27 +97,27 @@ const AdminCategory = () => {
     showToast("Category updated successfully");
   };
 
-  /* =========================
-     DELETE POPUP
-  ========================= */
-
-  const deleteCategory = (id) => {
-    setDeleteId(id);
-
-    setShowDeleteModal(true);
+  const openDeactivateModal = (id) => {
+    setDeactivateId(id);
+    setShowDeactivateModal(true);
   };
 
-  /* =========================
-     CONFIRM DELETE
-  ========================= */
+  const confirmDeactivate = () => {
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.id === deactivateId ? { ...cat, status: "Inactive" } : cat,
+      ),
+    );
+    setShowDeactivateModal(false);
+    setDeactivateId(null);
+    showToast("Category deactivated successfully");
+  };
 
-  const confirmDelete = () => {
-    setCategories(categories.filter((cat) => cat.id !== deleteId));
-
-    setShowDeleteModal(false);
-
-    setDeleteId(null);
-    showToast("Category deleted successfully");
+  const reactivateCategory = (id) => {
+    setCategories((prev) =>
+      prev.map((cat) => (cat.id === id ? { ...cat, status: "Active" } : cat)),
+    );
+    showToast("Category reactivated successfully");
   };
 
   /* =========================
@@ -123,11 +125,14 @@ const AdminCategory = () => {
   ========================= */
 
   const filteredCategories = categories
-    .filter((category) =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.status.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+    .filter((category) => {
+      const matchesSearch =
+        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        category.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || category.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const itemsPerPage = 5;
@@ -157,7 +162,7 @@ const AdminCategory = () => {
 
       {/* ================= SEARCH ================= */}
 
-      <div className="search-section">
+      <div className="search-section filters-row">
         <input
           type="text"
           placeholder="Search category..."
@@ -167,6 +172,13 @@ const AdminCategory = () => {
             setCurrentPage(1);
           }}
           className="search-input"
+        />
+        <StatusFilter
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
@@ -237,8 +249,24 @@ const AdminCategory = () => {
                         {/* Delete */}
 
                         <button
-                          className="delete-btn"
-                          onClick={() => deleteCategory(category.id)}
+                          type="button"
+                          className={
+                            category.status === "Active"
+                              ? "delete-btn"
+                              : "delete-btn reactivate-btn"
+                          }
+                          title={
+                            category.status === "Active"
+                              ? "Deactivate category"
+                              : "Reactivate category"
+                          }
+                          onClick={() => {
+                            if (category.status === "Active") {
+                              openDeactivateModal(category.id);
+                            } else {
+                              reactivateCategory(category.id);
+                            }
+                          }}
                         >
                           <FiTrash2 />
                         </button>
@@ -310,10 +338,14 @@ const AdminCategory = () => {
 
       {/* ================= DELETE CATEGORY ================= */}
 
-      {showDeleteModal && (
-        <Adddel
-          onClose={() => setShowDeleteModal(false)}
-          onDelete={confirmDelete}
+      {showDeactivateModal && (
+        <DeactivateConfirmModal
+          entityLabel="Category"
+          onClose={() => {
+            setShowDeactivateModal(false);
+            setDeactivateId(null);
+          }}
+          onConfirm={confirmDeactivate}
         />
       )}
     </div>

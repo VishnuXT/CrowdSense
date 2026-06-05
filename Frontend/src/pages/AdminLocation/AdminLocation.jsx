@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "./AdminLocation.css";
 import AddLocationPopup from "./AddLocationPopup";
 import EditLocation from "./EditLocation";
-import LocationDelete from "./DeleteLocation";
+import DeactivateConfirmModal from "../../components/DeactivateConfirmModal/DeactivateConfirmModal";
+import StatusFilter from "../../components/StatusFilter/StatusFilter";
 import { useToast } from "../../components/Toast/ToastProvider";
 
 import { FiEdit, FiTrash2 } from "react-icons/fi";
@@ -11,11 +12,12 @@ const AdminLocation = () => {
   const { showToast } = useToast();
   const [showPopup, setShowPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showDeactivatePopup, setShowDeactivatePopup] = useState(false);
 
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [deleteId, setDeleteId] = useState(null);
+  const [deactivateId, setDeactivateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [locations, setLocations] = useState([
@@ -132,38 +134,41 @@ const AdminLocation = () => {
     showToast("Location updated successfully");
   };
 
-  // Delete Location
-
-  const deleteLocation = () => {
-    setLocations(
-      locations.filter(
-        (location) => location.id !== deleteId
-      )
+  const confirmDeactivate = () => {
+    setLocations((prev) =>
+      prev.map((location) =>
+        location.id === deactivateId
+          ? { ...location, status: "Inactive" }
+          : location,
+      ),
     );
+    setShowDeactivatePopup(false);
+    setDeactivateId(null);
+    showToast("Location deactivated successfully");
+  };
 
-    setShowDeletePopup(false);
-    setDeleteId(null);
-    showToast("Location deleted successfully");
+  const reactivateLocation = (id) => {
+    setLocations((prev) =>
+      prev.map((location) =>
+        location.id === id ? { ...location, status: "Active" } : location,
+      ),
+    );
+    showToast("Location reactivated successfully");
   };
 
   // Search + Sort
 
   const filteredLocations = locations
-    .filter(
-      (location) =>
-        location.placeName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        location.category
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        location.status
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        location.address
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-    )
+    .filter((location) => {
+      const query = searchTerm.toLowerCase();
+      const matchesSearch =
+        location.placeName.toLowerCase().includes(query) ||
+        location.category.toLowerCase().includes(query) ||
+        location.address.toLowerCase().includes(query);
+      const matchesStatus =
+        statusFilter === "all" || location.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
     .sort((a, b) =>
       a.placeName.localeCompare(b.placeName)
     );
@@ -195,7 +200,7 @@ const AdminLocation = () => {
 
       {/* Search */}
 
-      <div className="search-section">
+      <div className="search-section filters-row">
         <input
           type="text"
           placeholder="Search location..."
@@ -203,6 +208,13 @@ const AdminLocation = () => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+        <StatusFilter
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
             setCurrentPage(1);
           }}
         />
@@ -280,13 +292,27 @@ const AdminLocation = () => {
                       </button>
 
                       <button
-                        className="delete-btn"
+                        type="button"
+                        className={
+                          location.status === "Active"
+                            ? "delete-btn"
+                            : "delete-btn reactivate-btn"
+                        }
+                        title={
+                          location.status === "Active"
+                            ? "Deactivate location"
+                            : "Reactivate location"
+                        }
                         onClick={() => {
-                          setDeleteId(location.id);
-                          setShowDeletePopup(true);
+                          if (location.status === "Active") {
+                            setDeactivateId(location.id);
+                            setShowDeactivatePopup(true);
+                          } else {
+                            reactivateLocation(location.id);
+                          }
                         }}
                       >
-                        <FiTrash2 color="#ef4444" />
+                        <FiTrash2 />
                       </button>
 
                     </div>
@@ -362,13 +388,14 @@ const AdminLocation = () => {
 
       {/* Delete Popup */}
 
-      {showDeletePopup && (
-        <LocationDelete
+      {showDeactivatePopup && (
+        <DeactivateConfirmModal
+          entityLabel="Location"
           onClose={() => {
-            setShowDeletePopup(false);
-            setDeleteId(null);
+            setShowDeactivatePopup(false);
+            setDeactivateId(null);
           }}
-          onDelete={deleteLocation}
+          onConfirm={confirmDeactivate}
         />
       )}
 

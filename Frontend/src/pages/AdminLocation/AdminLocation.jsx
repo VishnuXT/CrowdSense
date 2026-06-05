@@ -17,7 +17,7 @@ const AdminLocation = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [deactivateId, setDeactivateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("Active");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [locations, setLocations] = useState([
@@ -165,8 +165,7 @@ const AdminLocation = () => {
         location.placeName.toLowerCase().includes(query) ||
         location.category.toLowerCase().includes(query) ||
         location.address.toLowerCase().includes(query);
-      const matchesStatus =
-        statusFilter === "all" || location.status === statusFilter;
+    const matchesStatus = location.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) =>
@@ -244,7 +243,7 @@ const AdminLocation = () => {
                 <th>Latitude</th>
                 <th>Longitude</th>
                 <th>Popularity</th>
-                <th>Status</th>
+                {/* <th>Status</th> */}
                 <th>Actions</th>
               </tr>
             </thead>
@@ -266,7 +265,7 @@ const AdminLocation = () => {
 
                   <td>{location.popularityLevel || "Medium"}</td>
 
-                  <td>
+                  {/* <td>
                     <span
                       className={`status ${
                         location.status === "Active"
@@ -276,7 +275,7 @@ const AdminLocation = () => {
                     >
                       {location.status}
                     </span>
-                  </td>
+                  </td> */}
 
                   <td>
                     <div className="action-buttons">

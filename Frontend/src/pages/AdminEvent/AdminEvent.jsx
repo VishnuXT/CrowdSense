@@ -110,7 +110,7 @@ const AdminEvent = () => {
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [deactivateId, setDeactivateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("Active");
   const [currentPage, setCurrentPage] = useState(1);
 
   /* =========================
@@ -163,8 +163,7 @@ const AdminEvent = () => {
       event.eventType.toLowerCase().includes(query) ||
       event.location.toLowerCase().includes(query) ||
       event.crowdLevel.toLowerCase().includes(query);
-    const matchesStatus =
-      statusFilter === "all" || event.status === statusFilter;
+    const matchesStatus = event.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -244,7 +243,7 @@ const AdminEvent = () => {
 
                 <th>Crowd</th>
 
-                <th>Status</th>
+                {/* <th>Status</th> */}
 
                 <th>Actions</th>
               </tr>
@@ -270,7 +269,7 @@ const AdminEvent = () => {
                       </span>
                     </td>
 
-                    <td>
+                    {/* <td>
                       <span
                         className={`status ${
                           event.status === "Active" ? "active" : "inactive"
@@ -278,7 +277,7 @@ const AdminEvent = () => {
                       >
                         {event.status}
                       </span>
-                    </td>
+                    </td> */}
 
                     {/* ================= ACTIONS ================= */}
 

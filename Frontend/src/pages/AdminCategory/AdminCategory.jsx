@@ -21,7 +21,7 @@ const AdminCategory = () => {
 
   const [deactivateId, setDeactivateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("Active");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [categories, setCategories] = useState([
@@ -129,8 +129,7 @@ const AdminCategory = () => {
       const matchesSearch =
         category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         category.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || category.status === statusFilter;
+    const matchesStatus = category.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -205,7 +204,7 @@ const AdminCategory = () => {
 
                 <th>Description</th>
 
-                <th>Status</th>
+                {/* <th>Status</th> */}
 
                 <th>Actions</th>
               </tr>
@@ -219,7 +218,7 @@ const AdminCategory = () => {
 
                     <td>{category.description}</td>
 
-                    <td>
+                    {/* <td>
                       <span
                         className={`status ${
                           category.status === "Active" ? "active" : "inactive"
@@ -227,7 +226,7 @@ const AdminCategory = () => {
                       >
                         {category.status}
                       </span>
-                    </td>
+                    </td> */}
 
                     {/* ================= ACTIONS ================= */}
 

@@ -19,6 +19,9 @@ from app.api.health import router as health_router
 from app.api.recommendation import router as recommendation_router
 from app.api.traffic import router as traffic_router
 from app.api.weather import router as weather_router
+from app.api.category import router as categories_router
+from app.api.location import router as locations_router
+from app.api.event import router as events_router
 
 load_dotenv(BACKEND_DIR / ".env.example")
 load_dotenv(BACKEND_DIR / ".env", override=True)
@@ -43,7 +46,9 @@ app.include_router(traffic_router)
 app.include_router(crowd_score_router)
 app.include_router(recommendation_router)
 app.include_router(dashboard_router)
-
+app.include_router(events_router)       
+app.include_router(categories_router)
+app.include_router(locations_router)
 
 @app.get("/")
 def root():

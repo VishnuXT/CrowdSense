@@ -9,7 +9,6 @@ const EditLocation = ({
   const [formData, setFormData] = useState({
     placeName: location.placeName,
     category: location.category,
-    status: location.status,
     address: location.address,
     latitude: location.latitude,
     longitude: location.longitude,
@@ -29,7 +28,13 @@ const EditLocation = ({
 
     onUpdateLocation({
       ...location,
-      ...formData,
+      placeName: formData.placeName,
+      category: formData.category,
+      address: formData.address,
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      popularityLevel: formData.popularityLevel,
+      imageUrl: formData.imageUrl,
     });
 
     onClose();
@@ -64,36 +69,19 @@ const EditLocation = ({
             />
           </div>
 
-          <div className="row">
+          <div className="form-group">
+            <label>Category *</label>
 
-            <div className="form-group">
-              <label>Category *</label>
-
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-                <option>Religious Places</option>
-                <option>Tourist Places</option>
-                <option>Commercial Areas</option>
-                <option>Public Places</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Status *</label>
-
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option>Active</option>
-                <option>Inactive</option>
-              </select>
-            </div>
-
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+            >
+              <option>Religious Places</option>
+              <option>Tourist Places</option>
+              <option>Commercial Areas</option>
+              <option>Public Places</option>
+            </select>
           </div>
 
           <div className="form-group">

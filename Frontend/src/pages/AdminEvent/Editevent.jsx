@@ -18,7 +18,6 @@ const Editevent = ({
     startTime: "",
     endTime: "",
     crowdLevel: "",
-    status: "Active",
     description: "",
   });
 
@@ -37,7 +36,19 @@ const Editevent = ({
 
   const handleUpdate = () => {
     const updatedEvents = events.map((event) =>
-      event.id === formData.id ? formData : event,
+      event.id === formData.id
+        ? {
+            ...event,
+            eventName: formData.eventName,
+            eventType: formData.eventType,
+            location: formData.location,
+            eventDate: formData.eventDate,
+            startTime: formData.startTime,
+            endTime: formData.endTime,
+            crowdLevel: formData.crowdLevel,
+            description: formData.description,
+          }
+        : event,
     );
 
     setEvents(updatedEvents);
@@ -148,19 +159,6 @@ const Editevent = ({
               <option>Low</option>
               <option>Medium</option>
               <option>High</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Status</label>
-
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option>Active</option>
-              <option>Inactive</option>
             </select>
           </div>
 

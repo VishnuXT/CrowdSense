@@ -65,14 +65,14 @@ function Dashboard() {
       // change: "+5 this week", 
       color: "green" 
     },
-    { 
-      title: "Active Locations", 
-      value: loading ? "..." : String(statsData.active_locations), 
-      icon: <FaCalendarAlt />, 
-      // trend: "flat", 
-      // change: "Same as last week", 
-      color: "yellow" 
-    }
+    // { 
+    //   title: "Active Locations", 
+    //   value: loading ? "..." : String(statsData.active_locations), 
+    //   icon: <FaCalendarAlt />, 
+    //   trend: "flat", 
+    //   change: "Same as last week", 
+    //   color: "yellow" 
+    // }
   ];
 
   return (

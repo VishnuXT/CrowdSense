@@ -10,7 +10,8 @@ router = APIRouter(
 def get_categories():
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+         host="192.168.30.221",
+        # host="Localhost",
         port=5432,
         database="crowdsense",
         user="postgres",
@@ -51,7 +52,7 @@ def get_categories():
 def get_category(id: int):
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+       host="192.168.30.221",
         port=5432,
         database="crowdsense",
         user="postgres",
@@ -97,7 +98,7 @@ def get_category(id: int):
 def create_category(category: dict):
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+         host="192.168.30.221",
         port=5432,
         database="crowdsense",
         user="postgres",
@@ -142,7 +143,7 @@ def create_category(category: dict):
 def update_category(id: int, category: dict):
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+         host="192.168.30.221",
         port=5432,
         database="crowdsense",
         user="postgres",

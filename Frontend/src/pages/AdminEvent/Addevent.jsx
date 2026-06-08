@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Addevent.css";
 
-const Addevent = ({ events, setEvents, onEventAdded }) => {
+const API_BASE = "http://localhost:8000/api/events";
+
+const Addevent = ({ onEventAdded }) => {
   const [showPopup, setShowPopup] = useState(false);
+  const [locations, setLocations] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    id: "",
     eventName: "",
     eventType: "",
     location: "",
@@ -17,36 +20,68 @@ const Addevent = ({ events, setEvents, onEventAdded }) => {
     description: "",
   });
 
+  // Fetch location names for dropdown
+  useEffect(() => {
+    if (showPopup) {
+      fetch(`${API_BASE}/locations`)
+        .then((r) => r.json())
+        .then((data) => setLocations(data))
+        .catch(() => setLocations([]));
+    }
+  }, [showPopup]);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleAddEvent = () => {
-    const newEvent = {
-      ...formData,
-      id: Date.now(),
-    };
+  const handleAddEvent = async () => {
+    if (
+      !formData.eventName ||
+      !formData.eventType ||
+      !formData.location ||
+      !formData.eventDate ||
+      !formData.startTime ||
+      !formData.endTime ||
+      !formData.crowdLevel
+    ) {
+      alert("Please fill in all required fields.");
+      return;
+    }
 
-    setEvents([...events, newEvent]);
-    onEventAdded?.();
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    setFormData({
-      id: "",
-      eventName: "",
-      eventType: "",
-      location: "",
-      eventDate: "",
-      startTime: "",
-      endTime: "",
-      crowdLevel: "",
-      status: "Active",
-      description: "",
-    });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.detail || "Failed to add event");
+        return;
+      }
 
-    setShowPopup(false);
+      onEventAdded?.();
+
+      setFormData({
+        eventName: "",
+        eventType: "",
+        location: "",
+        eventDate: "",
+        startTime: "",
+        endTime: "",
+        crowdLevel: "",
+        status: "Active",
+        description: "",
+      });
+
+      setShowPopup(false);
+    } catch (err) {
+      alert("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -94,6 +129,10 @@ const Addevent = ({ events, setEvents, onEventAdded }) => {
                   <option>Sports</option>
                   <option>Festival</option>
                   <option>Religious</option>
+                  <option>National</option>
+                  <option>Entertainment</option>
+                  <option>Exhibition</option>
+                  <option>General</option>
                 </select>
               </div>
 
@@ -106,10 +145,11 @@ const Addevent = ({ events, setEvents, onEventAdded }) => {
                   onChange={handleChange}
                 >
                   <option value="">Select location</option>
-                  <option>Main Hall</option>
-                  <option>Ground</option>
-                  <option>Auditorium</option>
-                  <option>Temple</option>
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.name}>
+                      {loc.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -158,6 +198,7 @@ const Addevent = ({ events, setEvents, onEventAdded }) => {
                   <option>Low</option>
                   <option>Medium</option>
                   <option>High</option>
+                  <option>Very High</option>
                 </select>
               </div>
 
@@ -196,8 +237,12 @@ const Addevent = ({ events, setEvents, onEventAdded }) => {
                 Cancel
               </button>
 
-              <button className="submit-btn" onClick={handleAddEvent}>
-                Add Event
+              <button
+                className="submit-btn"
+                onClick={handleAddEvent}
+                disabled={submitting}
+              >
+                {submitting ? "Adding..." : "Add Event"}
               </button>
             </div>
           </div>

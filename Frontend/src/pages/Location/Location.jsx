@@ -1,55 +1,49 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { MdPeopleAlt } from "react-icons/md";
+import { getLocationsByCategory } from "../../services/api";
 import "./Location.css";
 import heroImg from "../../assets/images/hero.png";
 
-const locations = [
-  {
-    id: 1,
-    name: "Kovalam Beach",
-    category: "Beach",
-    address: "Kovalam\nThiruvananthapuram",
-    crowdLevel: "Medium",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-  },
-  {
-    id: 2,
-    name: "Shanghumugham Beach",
-    category: "Beach",
-    address: "Shanghumugham\nThiruvananthapuram",
-    crowdLevel: "Low",
-    image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800",
-  },
-  {
-    id: 3,
-    name: "Veli Beach",
-    category: "Beach",
-    address: "Veli\nThiruvananthapuram",
-    crowdLevel: "High",
-    image: "https://images.unsplash.com/photo-1596895111956-bf57b102b5e2?w=800",
-  },
-  {
-    id: 4,
-    name: "Akkulam Tourist Area",
-    category: "Tourist Attraction",
-    address: "Akkulam\nThiruvananthapuram",
-    crowdLevel: "Medium",
-    image: "https://images.unsplash.com/photo-1627896157734-4d7d4388f28a?w=800",
-  },
-];
-
 function Location() {
   const navigate = useNavigate();
+  const routerLocation = useLocation();
+
+  const categoryId = routerLocation.state?.categoryId;
+  const categoryName = routerLocation.state?.categoryName;
+
+  const [locations, setLocations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  useEffect(() => {
+    if (categoryId) {
+      fetchLocations();
+    }
+  }, [categoryId]);
+
+  const fetchLocations = async () => {
+    try {
+      const response = await getLocationsByCategory(categoryId);
+      setLocations(response.data);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
   const getCrowdBadge = (level) => {
-    switch(level) {
-      case "Low": return "badge-green";
-      case "Medium": return "badge-yellow";
-      case "High": return "badge-red";
-      default: return "";
+    switch (level?.toLowerCase()) {
+      case "low":
+        return "badge-green";
+
+      case "medium":
+        return "badge-yellow";
+
+      case "high":
+        return "badge-red";
+
+      default:
+        return "";
     }
   };
 
@@ -58,24 +52,30 @@ function Location() {
 
     if (!query) return locations;
 
-    return locations.filter((item) =>
-      item.name.toLowerCase().includes(query) ||
-      item.category.toLowerCase().includes(query) ||
-      item.address.toLowerCase().includes(query) ||
-      item.crowdLevel.toLowerCase().includes(query),
+    return locations.filter(
+      (item) =>
+        item.name?.toLowerCase().includes(query) ||
+        item.category?.toLowerCase().includes(query) ||
+        item.description?.toLowerCase().includes(query) ||
+        item.crowd_status?.toLowerCase().includes(query)
     );
-  }, [searchTerm]);
+  }, [locations, searchTerm]);
 
   return (
     <div className="location-page">
-      <div 
-        className="loc-hero-bg" 
+      <div
+        className="loc-hero-bg"
         style={{ backgroundImage: `url(${heroImg})` }}
       >
         <div className="loc-overlay">
           <div className="loc-hero-content">
-            <h1><span>Beaches</span> in Thiruvananthapuram</h1>
-            <p>Select a place to view crowd status and other details.</p>
+            <h1>
+              <span>{categoryName}</span> in Thiruvananthapuram
+            </h1>
+
+            <p>
+              Select a place to view crowd status and other details.
+            </p>
           </div>
         </div>
       </div>
@@ -83,6 +83,7 @@ function Location() {
       <div className="loc-main-container">
         <div className="loc-search-wrapper">
           <FaSearch className="search-icon" />
+
           <input
             type="text"
             placeholder="Search place..."
@@ -95,31 +96,47 @@ function Location() {
         <div className="loc-list">
           {filteredLocations.map((item) => (
             <div className="loc-card" key={item.id}>
-              <img src={item.image} alt={item.name} className="loc-card-img" />
+              <img
+                src={item.image_url}
+                alt={item.name}
+                className="loc-card-img"
+              />
 
               <div className="loc-col title-col">
                 <h2>{item.name}</h2>
-                <span className="loc-category-badge">{item.category}</span>
+
+                <span className="loc-category-badge">
+                  {item.category}
+                </span>
               </div>
 
               <div className="loc-col divider-col">
-                <p>{item.address.split('\n')[0]}</p>
-                <p>{item.address.split('\n')[1]}</p>
+                <p>{item.description}</p>
               </div>
 
               <div className="loc-col divider-col">
-                <span className="crowd-label">Crowd Status</span>
-                <div className={`crowd-badge ${getCrowdBadge(item.crowdLevel)}`}>
-                  <MdPeopleAlt /> {item.crowdLevel}
+                <span className="crowd-label">
+                  Crowd Status
+                </span>
+
+                <div
+                  className={`crowd-badge ${getCrowdBadge(
+                    item.crowd_status
+                  )}`}
+                >
+                  <MdPeopleAlt />
+                  {item.crowd_status}
                 </div>
               </div>
 
               <div className="loc-col btn-col">
                 <button
-                  onClick={() => navigate(`/locations/${item.id}`)}
+                  onClick={() =>
+                    navigate(`/locations/${item.id}`)
+                  }
                   className="loc-details-btn"
                 >
-                  View Details &rarr;
+                  View Details →
                 </button>
               </div>
             </div>

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AdminLocation.css";
 import AddLocationPopup from "./AddLocationPopup";
 import EditLocation from "./EditLocation";
 import DeactivateConfirmModal from "../../components/DeactivateConfirmModal/DeactivateConfirmModal";
 import StatusFilter from "../../components/StatusFilter/StatusFilter";
 import { useToast } from "../../components/Toast/ToastProvider";
+import { getLocations } from "../../services/locationService";
 
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
@@ -20,104 +21,55 @@ const AdminLocation = () => {
   const [statusFilter, setStatusFilter] = useState("Active");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [locations, setLocations] = useState([
-    {
-      id: 1,
-      placeName: "Sree Padmanabhaswamy Temple",
-      category: "Religious Places",
-      address: "West Nada, Fort, Thiruvananthapuram",
-      latitude: "8.4850",
-      longitude: "76.9496",
-      popularityLevel: "High",
-      imageUrl: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800",
-      status: "Active",
-    },
-    {
-      id: 2,
-      placeName: "Kovalam Beach",
-      category: "Tourist Places",
-      address: "Kovalam, Thiruvananthapuram",
-      latitude: "8.4003",
-      longitude: "76.9780",
-      popularityLevel: "Very High",
-      imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-      status: "Active",
-    },
-    {
-      id: 3,
-      placeName: "Lulu Mall",
-      category: "Commercial Areas",
-      address: "NH 66, Kazhakkoottam, Thiruvananthapuram",
-      latitude: "8.5603",
-      longitude: "76.8870",
-      popularityLevel: "High",
-      imageUrl: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800",
-      status: "Inactive",
-    },
-    {
-      id: 4,
-      placeName: "Kanakakunnu Palace Ground",
-      category: "Public Places",
-      address: "Kanakakunnu, Thiruvananthapuram",
-      latitude: "8.4972",
-      longitude: "76.9523",
-      popularityLevel: "Medium",
-      imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800",
-      status: "Active",
-    },
-    {
-      id: 5,
-      placeName: "Attukal Temple",
-      category: "Religious Places",
-      address: "Attukal, Trivandrum",
-      latitude: "8.4951",
-      longitude: "76.9536",
-      popularityLevel: "Medium",
-      imageUrl: "https://images.unsplash.com/photo-1545239351-ef35f43d514b?w=800",
-      status: "Inactive",
-    },
-    {
-      id: 6,
-      placeName: "Centre Square Mall",
-      category: "Commercial Areas",
-      address: "MG Road, Kochi",
-      latitude: "9.9816",
-      longitude: "76.2999",
-      popularityLevel: "Medium",
-      imageUrl: "https://images.unsplash.com/photo-1581553674786-63febb0e5db7?w=800",
-      status: "Active",
-    },
-    {
-      id: 7,
-      placeName: "Shanghumugham Beach",
-      category: "Tourist Places",
-      address: "Shanghumugham, Trivandrum",
-      latitude: "8.4822",
-      longitude: "76.9123",
-      popularityLevel: "Low",
-      imageUrl: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800",
-      status: "Active",
-    },
-    {
-      id: 8,
-      placeName: "Mall of Travancore",
-      category: "Commercial Areas",
-      address: "Chackai, Trivandrum",
-      latitude: "8.4887",
-      longitude: "76.9492",
-      popularityLevel: "Medium",
-      imageUrl: "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800",
-      status: "Active",
-    },
-  ]);
+  const [locations, setLocations] = useState([]);
+
+  const getPopularityLevel = (score) => {
+    if (score < 45) return "Low";
+    if (score <= 75) return "Medium";
+    return "High";
+  };
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  const fetchLocations = async () => {
+    try {
+      const response = await getLocations();
+
+      const formattedLocations = response.data.map((location) => ({
+        id: location.id,
+
+        name: location.name,
+        placeName: location.name,
+
+        category: location.category_name || "",
+        category_id: location.category_id,
+
+        address: location.address,
+
+        latitude: location.latitude,
+        longitude: location.longitude,
+
+        popularity_score: location.popularity_score,
+        popularityLevel: location.popularity_score,
+
+        image_url: location.image_url || "",
+        imageUrl: location.image_url || "",
+
+        status: "Active",
+      }));
+
+      setLocations(formattedLocations);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Add Location
 
   const addLocation = (newLocation) => {
-    setLocations((prevLocations) => [
-      ...prevLocations,
-      newLocation,
-    ]);
+    setLocations((prevLocations) => [...prevLocations, newLocation]);
     showToast("Location added successfully");
   };
 
@@ -126,9 +78,7 @@ const AdminLocation = () => {
   const updateLocation = (updatedLocation) => {
     setLocations(
       locations.map((location) =>
-        location.id === updatedLocation.id
-          ? updatedLocation
-          : location
+        location.id === updatedLocation.id ? updatedLocation : location
       )
     );
     showToast("Location updated successfully");
@@ -139,8 +89,8 @@ const AdminLocation = () => {
       prev.map((location) =>
         location.id === deactivateId
           ? { ...location, status: "Inactive" }
-          : location,
-      ),
+          : location
+      )
     );
     setShowDeactivatePopup(false);
     setDeactivateId(null);
@@ -150,8 +100,8 @@ const AdminLocation = () => {
   const reactivateLocation = (id) => {
     setLocations((prev) =>
       prev.map((location) =>
-        location.id === id ? { ...location, status: "Active" } : location,
-      ),
+        location.id === id ? { ...location, status: "Active" } : location
+      )
     );
     showToast("Location reactivated successfully");
   };
@@ -165,23 +115,23 @@ const AdminLocation = () => {
         location.placeName.toLowerCase().includes(query) ||
         location.category.toLowerCase().includes(query) ||
         location.address.toLowerCase().includes(query);
-    const matchesStatus = location.status === statusFilter;
+      const matchesStatus = location.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
-    .sort((a, b) =>
-      a.placeName.localeCompare(b.placeName)
-    );
+    .sort((a, b) => a.placeName.localeCompare(b.placeName));
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(filteredLocations.length / itemsPerPage);
   const activePage = Math.min(currentPage, totalPages || 1);
   const indexOfLastItem = activePage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentLocations = filteredLocations.slice(indexOfFirstItem, indexOfLastItem);
+  const currentLocations = filteredLocations.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   return (
     <div className="admin-location-page">
-
       {/* Header */}
 
       <div className="page-header">
@@ -189,10 +139,7 @@ const AdminLocation = () => {
           <h2>Location Management</h2>
         </div>
 
-        <button
-          className="add-location-btn"
-          onClick={() => setShowPopup(true)}
-        >
+        <button className="add-location-btn" onClick={() => setShowPopup(true)}>
           + Add Location
         </button>
       </div>
@@ -222,7 +169,6 @@ const AdminLocation = () => {
       {/* Table Card */}
 
       <div className="table-card">
-
         <div className="table-header">
           <h3>Location List</h3>
 
@@ -232,9 +178,7 @@ const AdminLocation = () => {
         </div>
 
         <div className="table-wrapper">
-
           <table className="location-table">
-
             <thead>
               <tr>
                 <th>Place Name</th>
@@ -249,10 +193,8 @@ const AdminLocation = () => {
             </thead>
 
             <tbody>
-
               {currentLocations.map((location) => (
                 <tr key={location.id}>
-
                   <td>{location.placeName}</td>
 
                   <td>{location.category}</td>
@@ -279,7 +221,6 @@ const AdminLocation = () => {
 
                   <td>
                     <div className="action-buttons">
-
                       <button
                         className="edit-btn"
                         onClick={() => {
@@ -313,10 +254,8 @@ const AdminLocation = () => {
                       >
                         <FiTrash2 />
                       </button>
-
                     </div>
                   </td>
-
                 </tr>
               ))}
 
@@ -327,11 +266,8 @@ const AdminLocation = () => {
                   </td>
                 </tr>
               )}
-
             </tbody>
-
           </table>
-
         </div>
 
         {/* Pagination */}
@@ -356,7 +292,9 @@ const AdminLocation = () => {
             ))}
 
             <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={activePage === totalPages}
               className="page-btn next-btn"
             >
@@ -371,7 +309,7 @@ const AdminLocation = () => {
       {showPopup && (
         <AddLocationPopup
           onClose={() => setShowPopup(false)}
-          onAddLocation={addLocation}
+          fetchLocations={fetchLocations}
         />
       )}
 
@@ -381,7 +319,7 @@ const AdminLocation = () => {
         <EditLocation
           location={selectedLocation}
           onClose={() => setShowEditPopup(false)}
-          onUpdateLocation={updateLocation}
+          onUpdateLocation={fetchLocations}
         />
       )}
 
@@ -397,7 +335,6 @@ const AdminLocation = () => {
           onConfirm={confirmDeactivate}
         />
       )}
-
     </div>
   );
 };

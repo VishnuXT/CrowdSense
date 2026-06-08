@@ -1,16 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 import "./AdminCategory.css";
 
 import AddCategory from "./AddCategory";
 import Addedit from "./Addedit";
+
 import DeactivateConfirmModal from "../../components/DeactivateConfirmModal/DeactivateConfirmModal";
 import StatusFilter from "../../components/StatusFilter/StatusFilter";
+
 import { useToast } from "../../components/Toast/ToastProvider";
+
+import {
+  getCategories,
+  createCategory,
+  updateCategoryApi,
+  deactivateCategoryApi,
+} from "../../services/categoryService";
 
 const AdminCategory = () => {
   const { showToast } = useToast();
+
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -20,135 +30,167 @@ const AdminCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [deactivateId, setDeactivateId] = useState(null);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Active");
+
+  const [statusFilter, setStatusFilter] = useState("ACTIVE");
+
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: "Religious Places",
-      description: "Places of worship and religious significance",
-      status: "Active",
-    },
+  const [categories, setCategories] = useState([]);
 
-    {
-      id: 2,
-      name: "Tourist Places",
-      description: "Tourist attractions and popular visit locations",
-      status: "Active",
-    },
+  /*
+  =========================
+  FETCH CATEGORIES
+  =========================
+  */
 
-    {
-      id: 3,
-      name: "Commercial Areas",
-      description: "Shopping malls and commercial hubs",
-      status: "Inactive",
-    },
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories();
 
-    {
-      id: 4,
-      name: "Public Places",
-      description: "Parks, grounds and public places",
-      status: "Active",
-    },
+      console.log(response.data);
 
-    {
-      id: 5,
-      name: "Entertainment",
-      description: "Movie theaters, malls and gaming zones",
-      status: "Active",
-    },
-
-    {
-      id: 6,
-      name: "Sports & Parks",
-      description: "Stadiums, sports complexes and recreational parks",
-      status: "Active",
-    },
-
-    {
-      id: 7,
-      name: "Nature & Outdoors",
-      description: "Hill stations, waterfalls and forest reserves",
-      status: "Inactive",
-    },
-  ]);
-
-  /* =========================
-     ADD CATEGORY
-  ========================= */
-
-  const addCategory = (newCategory) => {
-    setCategories((prev) => [...prev, newCategory]);
-    showToast("Category added successfully");
+      setCategories(response.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  /* =========================
-     UPDATE CATEGORY
-  ========================= */
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-  const updateCategory = (updatedCategory) => {
-    setCategories(
-      categories.map((cat) =>
-        cat.id === updatedCategory.id ? updatedCategory : cat,
-      ),
-    );
-    showToast("Category updated successfully");
+  /*
+  =========================
+  ADD CATEGORY
+  =========================
+  */
+
+  const addCategory = async (newCategory) => {
+    try {
+      await createCategory(newCategory);
+
+      fetchCategories();
+
+      setShowAddModal(false);
+
+      showToast("Category added successfully");
+    } catch (error) {
+      console.log(error);
+
+      showToast("Failed to add category");
+    }
   };
+
+  /*
+  =========================
+  UPDATE CATEGORY
+  =========================
+  */
+
+  const updateCategory = async (updatedCategory) => {
+    try {
+      await updateCategoryApi(updatedCategory.id, {
+        name: updatedCategory.name,
+        description: updatedCategory.description,
+      });
+
+      fetchCategories();
+
+      setShowEditModal(false);
+
+      showToast("Category updated successfully");
+    } catch (error) {
+      console.log(error);
+
+      showToast("Failed to update category");
+    }
+  };
+
+  /*
+  =========================
+  OPEN DELETE MODAL
+  =========================
+  */
 
   const openDeactivateModal = (id) => {
     setDeactivateId(id);
+
     setShowDeactivateModal(true);
   };
 
-  const confirmDeactivate = () => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === deactivateId ? { ...cat, status: "Inactive" } : cat,
-      ),
-    );
-    setShowDeactivateModal(false);
-    setDeactivateId(null);
-    showToast("Category deactivated successfully");
+  /*
+  =========================
+  DELETE CATEGORY
+  =========================
+  */
+
+  const confirmDeactivate = async () => {
+    try {
+      await deactivateCategoryApi(deactivateId);
+
+      fetchCategories();
+
+      setShowDeactivateModal(false);
+
+      setDeactivateId(null);
+
+      showToast("Category deactivated successfully");
+    } catch (error) {
+      console.log(error);
+
+      showToast("Failed to deactivate category");
+    }
   };
 
-  const reactivateCategory = (id) => {
-    setCategories((prev) =>
-      prev.map((cat) => (cat.id === id ? { ...cat, status: "Active" } : cat)),
-    );
-    showToast("Category reactivated successfully");
-  };
-
-  /* =========================
-     SEARCH FILTER
-  ========================= */
+  /*
+  =========================
+  FILTER
+  =========================
+  */
 
   const filteredCategories = categories
     .filter((category) => {
       const matchesSearch =
-        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = category.status === statusFilter;
+        category.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        category.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        category.status?.toLowerCase() === statusFilter.toLowerCase();
+
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  /*
+  =========================
+  PAGINATION
+  =========================
+  */
+
   const itemsPerPage = 5;
+
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+
   const activePage = Math.min(currentPage, totalPages || 1);
+
   const indexOfLastItem = activePage * itemsPerPage;
+
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
+
+  const currentCategories = filteredCategories.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
 
   return (
     <div className="admin-category-page">
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
 
       <div className="page-header">
         <div>
           <h2>Category Management</h2>
-
         </div>
 
         <button
@@ -159,7 +201,7 @@ const AdminCategory = () => {
         </button>
       </div>
 
-      {/* ================= SEARCH ================= */}
+      {/* SEARCH */}
 
       <div className="search-section filters-row">
         <input
@@ -168,24 +210,25 @@ const AdminCategory = () => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
+
             setCurrentPage(1);
           }}
           className="search-input"
         />
+
         <StatusFilter
           value={statusFilter}
           onChange={(value) => {
             setStatusFilter(value);
+
             setCurrentPage(1);
           }}
         />
       </div>
 
-      {/* ================= TABLE CARD ================= */}
+      {/* TABLE */}
 
       <div className="table-card">
-        {/* Card Header */}
-
         <div className="table-header">
           <h3>Category List</h3>
 
@@ -194,156 +237,83 @@ const AdminCategory = () => {
           </div>
         </div>
 
-        {/* Table */}
+        <table className="category-table">
+          <thead>
+            <tr>
+              <th>Category Name</th>
 
-        <div className="table-wrapper">
-          <table className="category-table">
-            <thead>
-              <tr>
-                <th>Category Name</th>
+              <th>Description</th>
 
-                <th>Description</th>
+              <th>Status</th>
 
-                {/* <th>Status</th> */}
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-                <th>Actions</th>
-              </tr>
-            </thead>
+          <tbody>
+            {currentCategories.length > 0 ? (
+              currentCategories.map((category) => (
+                <tr key={category.id}>
+                  <td>{category.name}</td>
 
-            <tbody>
-              {currentCategories.length > 0 ? (
-                currentCategories.map((category) => (
-                  <tr key={category.id}>
-                    <td>{category.name}</td>
+                  <td>{category.description}</td>
 
-                    <td>{category.description}</td>
+                  <td>{category.status}</td>
 
-                    {/* <td>
-                      <span
-                        className={`status ${
-                          category.status === "Active" ? "active" : "inactive"
-                        }`}
-                      >
-                        {category.status}
-                      </span>
-                    </td> */}
+                  <td className="action-buttons">
+                    <button
+                      className="edit-btn"
+                      onClick={() => {
+                        setSelectedCategory(category);
 
-                    {/* ================= ACTIONS ================= */}
+                        setShowEditModal(true);
+                      }}
+                    >
+                      <FiEdit />
+                    </button>
 
-                    <td>
-                      <div className="action-buttons">
-                        {/* Edit */}
-
-                        <button
-                          className="edit-btn"
-                          onClick={() => {
-                            setSelectedCategory(category);
-
-                            setShowEditModal(true);
-                          }}
-                        >
-                          <FiEdit />
-                        </button>
-
-                        {/* Delete */}
-
-                        <button
-                          type="button"
-                          className={
-                            category.status === "Active"
-                              ? "delete-btn"
-                              : "delete-btn reactivate-btn"
-                          }
-                          title={
-                            category.status === "Active"
-                              ? "Deactivate category"
-                              : "Reactivate category"
-                          }
-                          onClick={() => {
-                            if (category.status === "Active") {
-                              openDeactivateModal(category.id);
-                            } else {
-                              reactivateCategory(category.id);
-                            }
-                          }}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="no-data">
-                    No categories found
+                    <button
+                      className="delete-btn"
+                      onClick={() => openDeactivateModal(category.id)}
+                    >
+                      <FiTrash2 />
+                    </button>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={activePage === 1}
-              className="page-btn prev-btn"
-            >
-              Previous
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`page-btn ${activePage === page ? "active" : ""}`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={activePage === totalPages}
-              className="page-btn next-btn"
-            >
-              Next
-            </button>
-          </div>
-        )}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No categories found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* ================= ADD CATEGORY ================= */}
+      {/* ADD CATEGORY */}
 
       {showAddModal && (
         <AddCategory
           onClose={() => setShowAddModal(false)}
-          onAddCategory={addCategory}
+          onAdd={addCategory}
         />
       )}
 
-      {/* ================= EDIT CATEGORY ================= */}
+      {/* EDIT CATEGORY */}
 
-      {showEditModal && selectedCategory && (
+      {showEditModal && (
         <Addedit
           category={selectedCategory}
           onClose={() => setShowEditModal(false)}
-          onUpdateCategory={updateCategory}
+          onUpdate={updateCategory}
         />
       )}
 
-      {/* ================= DELETE CATEGORY ================= */}
+      {/* DELETE MODAL */}
 
       {showDeactivateModal && (
         <DeactivateConfirmModal
-          entityLabel="Category"
-          onClose={() => {
-            setShowDeactivateModal(false);
-            setDeactivateId(null);
-          }}
+          onClose={() => setShowDeactivateModal(false)}
           onConfirm={confirmDeactivate}
         />
       )}

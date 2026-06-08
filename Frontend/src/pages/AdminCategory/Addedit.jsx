@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+
 import "./Addedit.css";
 
-const Addedit = ({ category, onClose, onUpdateCategory }) => {
+const Addedit = ({ category, onClose, onUpdate }) => {
   const [formData, setFormData] = useState({
     name: category.name,
     description: category.description,
@@ -14,21 +15,29 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    onUpdateCategory({
-      ...category,
-      name: formData.name,
-      description: formData.description,
-    });
+    try {
+      await onUpdate({
+        id: category.id,
+        name: formData.name,
+        description: formData.description,
+      });
 
-    onClose();
+      onClose();
+    } catch (error) {
+      console.log(error);
+
+      alert("Failed to update category");
+    }
   };
 
   return (
     <div className="modal-overlay">
       <div className="edit-category-modal">
+        {/* HEADER */}
+
         <div className="modal-header">
           <h2>Edit Category</h2>
 
@@ -37,7 +46,11 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
           </button>
         </div>
 
+        {/* FORM */}
+
         <form onSubmit={handleSubmit}>
+          {/* CATEGORY NAME */}
+
           <div className="form-group">
             <label>Category Name</label>
 
@@ -50,6 +63,8 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
             />
           </div>
 
+          {/* DESCRIPTION */}
+
           <div className="form-group">
             <label>Description</label>
 
@@ -60,6 +75,8 @@ const Addedit = ({ category, onClose, onUpdateCategory }) => {
               onChange={handleChange}
             />
           </div>
+
+          {/* FOOTER */}
 
           <div className="modal-footer">
             <button type="button" className="cancel-btn" onClick={onClose}>

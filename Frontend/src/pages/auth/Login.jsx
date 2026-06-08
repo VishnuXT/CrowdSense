@@ -10,11 +10,28 @@ function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Logging in with", username, password);
+  const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: username, password }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || "Login failed");
+    }
+    // Navigate to admin dashboard after successful login
     navigate("/admin/dashboard");
-  };
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+// Updated public viewer button to navigate to public home without admin token check
 
   return (
     <div className="admin-login-page">

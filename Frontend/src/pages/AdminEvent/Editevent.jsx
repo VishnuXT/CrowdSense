@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Editevent.css";
 
+const API_BASE = "http://localhost:8000/api/events";
+
 const Editevent = ({
   showEditPopup,
   setShowEditPopup,
   selectedEvent,
-  events,
-  setEvents,
   onEventUpdated,
 }) => {
   const [formData, setFormData] = useState({
@@ -18,8 +18,12 @@ const Editevent = ({
     startTime: "",
     endTime: "",
     crowdLevel: "",
+    status: "Active",
     description: "",
   });
+
+  const [locations, setLocations] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (selectedEvent) {
@@ -27,34 +31,42 @@ const Editevent = ({
     }
   }, [selectedEvent]);
 
+  // Fetch locations when popup opens
+  useEffect(() => {
+    if (showEditPopup) {
+      fetch(`${API_BASE}/locations`)
+        .then((r) => r.json())
+        .then((data) => setLocations(data))
+        .catch(() => setLocations([]));
+    }
+  }, [showEditPopup]);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = () => {
-    const updatedEvents = events.map((event) =>
-      event.id === formData.id
-        ? {
-            ...event,
-            eventName: formData.eventName,
-            eventType: formData.eventType,
-            location: formData.location,
-            eventDate: formData.eventDate,
-            startTime: formData.startTime,
-            endTime: formData.endTime,
-            crowdLevel: formData.crowdLevel,
-            description: formData.description,
-          }
-        : event,
-    );
+  const handleUpdate = async () => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/${formData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    setEvents(updatedEvents);
-    onEventUpdated?.();
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.detail || "Failed to update event");
+        return;
+      }
 
-    setShowEditPopup(false);
+      onEventUpdated?.();
+      setShowEditPopup(false);
+    } catch (err) {
+      alert("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!showEditPopup) return null;
@@ -93,10 +105,15 @@ const Editevent = ({
               value={formData.eventType}
               onChange={handleChange}
             >
+              <option value="">Select event type</option>
               <option>Music</option>
               <option>Sports</option>
               <option>Festival</option>
               <option>Religious</option>
+              <option>National</option>
+              <option>Entertainment</option>
+              <option>Exhibition</option>
+              <option>General</option>
             </select>
           </div>
 
@@ -108,10 +125,12 @@ const Editevent = ({
               value={formData.location}
               onChange={handleChange}
             >
-              <option>Main Hall</option>
-              <option>Ground</option>
-              <option>Auditorium</option>
-              <option>Temple</option>
+              <option value="">Select location</option>
+              {locations.map((loc) => (
+                <option key={loc.id} value={loc.name}>
+                  {loc.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -159,6 +178,20 @@ const Editevent = ({
               <option>Low</option>
               <option>Medium</option>
               <option>High</option>
+              <option>Very High</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Status</label>
+
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option>Active</option>
+              <option>Inactive</option>
             </select>
           </div>
 
@@ -182,8 +215,12 @@ const Editevent = ({
             Cancel
           </button>
 
-          <button className="edit-update-btn" onClick={handleUpdate}>
-            Update Event
+          <button
+            className="edit-update-btn"
+            onClick={handleUpdate}
+            disabled={submitting}
+          >
+            {submitting ? "Updating..." : "Update Event"}
           </button>
         </div>
       </div>

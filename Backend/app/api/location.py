@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from app.services.crowd_score_service import get_crowd_score_for_location
 import psycopg2
 
 router = APIRouter(
@@ -57,7 +58,7 @@ def get_locations():
 def get_location(id: int):
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+      host="192.168.30.221",
         port=5432,
         database="crowdsense",
         user="postgres",
@@ -99,17 +100,11 @@ def get_location(id: int):
     return result
 
 
-
-
-
-# GET LOCATIONS BY CATEGORY
-
-
 @router.get("/category/{category_id}")
 def get_locations_by_category(category_id: int):
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+       host="192.168.30.221",
         port=5432,
         database="crowdsense",
         user="postgres",
@@ -120,10 +115,17 @@ def get_locations_by_category(category_id: int):
 
     cur.execute(
         """
-        SELECT id, name, latitude, longitude
-        FROM locations
-        WHERE category_id = %s
-        ORDER BY id ASC
+        SELECT
+            l.id,
+            l.name,
+            c.name,
+            l.description,
+            l.image_url
+        FROM locations l
+        JOIN categories c
+            ON l.category_id = c.id
+        WHERE l.category_id = %s
+        ORDER BY l.id ASC
         """,
         (category_id,)
     )
@@ -136,17 +138,26 @@ def get_locations_by_category(category_id: int):
     result = []
 
     for row in rows:
+
+        location_id = row[0]
+
+        crowd_data = get_crowd_score_for_location(location_id)
+
+        crowd_status = "Unknown"
+
+        if crowd_data:
+            crowd_status = crowd_data.get("crowd_status", "Unknown")
+
         result.append({
             "id": row[0],
             "name": row[1],
-            "latitude": row[2],
-            "longitude": row[3]
+            "category": row[2],
+            "description": row[3],
+            "image_url": row[4],
+            "crowd_status": crowd_status
         })
 
     return result
-
-
-
 
 
 # CREATE LOCATION
@@ -207,7 +218,8 @@ def create_location(location: dict):
 def update_location(id: int, location: dict):
 
     conn = psycopg2.connect(
-        host="192.168.30.221",
+     host="192.168.30.221",
+       
         port=5432,
         database="crowdsense",
         user="postgres",

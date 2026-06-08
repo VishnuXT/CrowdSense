@@ -76,7 +76,17 @@ function Home() {
 
               <button
                 className="home-explore-btn"
-                onClick={() => navigate("/locations")}
+                onClick={() =>
+                  navigate("/locations", {
+                    state: {
+                      categoryId: selectedCategory,
+                      categoryName:
+                        categories.find(
+                          (cat) => cat.id === Number(selectedCategory)
+                        )?.name || "",
+                    },
+                  })
+                }
               >
                 <FaSearch className="btn-icon" />
                 Explore Locations

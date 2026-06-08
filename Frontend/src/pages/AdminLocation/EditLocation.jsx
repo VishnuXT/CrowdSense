@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./EditLocation.css";
 
 const EditLocation = ({
@@ -6,15 +7,57 @@ const EditLocation = ({
   onClose,
   onUpdateLocation,
 }) => {
+
+  const [categories, setCategories] = useState([]);
+
   const [formData, setFormData] = useState({
-    placeName: location.placeName,
-    category: location.category,
-    address: location.address,
-    latitude: location.latitude,
-    longitude: location.longitude,
-    popularityLevel: location.popularityLevel || "Medium",
-    imageUrl: location.imageUrl || "",
+    placeName: "",
+    category: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    popularityLevel: "",
+    imageUrl: "",
   });
+
+  useEffect(() => {
+    fetchCategories();
+    fetchLocationDetails();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/api/categories/"
+      );
+
+      setCategories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchLocationDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/locations/${location.id}`
+      );
+
+      const data = response.data;
+
+      setFormData({
+        placeName: data.name || "",
+        category: data.category_id || "",
+        address: data.address || "",
+        latitude: data.latitude || "",
+        longitude: data.longitude || "",
+        popularityLevel: data.popularity_score || "",
+        imageUrl: data.image_url || "",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -23,21 +66,37 @@ const EditLocation = ({
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    onUpdateLocation({
-      ...location,
-      placeName: formData.placeName,
-      category: formData.category,
-      address: formData.address,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-      popularityLevel: formData.popularityLevel,
-      imageUrl: formData.imageUrl,
-    });
+    try {
+      const payload = {
+        name: formData.placeName,
+        address: formData.address,
+        latitude: parseFloat(formData.latitude),
+        longitude: parseFloat(formData.longitude),
+        category_id: parseInt(formData.category),
+        popularity_score: parseInt(formData.popularityLevel),
+        image_url: formData.imageUrl,
+      };
 
-    onClose();
+      await axios.put(
+        `http://localhost:8000/api/locations/${location.id}`,
+        payload
+      );
+
+      alert("Location updated successfully");
+
+      if (onUpdateLocation) {
+        onUpdateLocation();
+      }
+
+      onClose();
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update location");
+    }
   };
 
   return (
@@ -76,11 +135,20 @@ const EditLocation = ({
               name="category"
               value={formData.category}
               onChange={handleChange}
+              required
             >
-              <option>Religious Places</option>
-              <option>Tourist Places</option>
-              <option>Commercial Areas</option>
-              <option>Public Places</option>
+              <option value="">
+                Select Category
+              </option>
+
+              {categories.map((cat) => (
+                <option
+                  key={cat.id}
+                  value={cat.id}
+                >
+                  {cat.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -92,6 +160,7 @@ const EditLocation = ({
               name="address"
               value={formData.address}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -101,10 +170,12 @@ const EditLocation = ({
               <label>Latitude *</label>
 
               <input
-                type="text"
+                type="number"
+                step="any"
                 name="latitude"
                 value={formData.latitude}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -112,38 +183,35 @@ const EditLocation = ({
               <label>Longitude *</label>
 
               <input
-                type="text"
+                type="number"
+                step="any"
                 name="longitude"
                 value={formData.longitude}
                 onChange={handleChange}
+                required
               />
             </div>
 
           </div>
 
           <div className="form-group">
-            <label>Popularity Level *</label>
+            <label>Popularity Score *</label>
 
-            <select
+            <input
+              type="number"
               name="popularityLevel"
               value={formData.popularityLevel}
               onChange={handleChange}
-            >
-              <option value="Very Low">Very Low</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Very High">Very High</option>
-            </select>
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Location Image URL *</label>
+            <label>Image URL *</label>
 
             <input
               type="text"
               name="imageUrl"
-              placeholder="Enter location image URL"
               value={formData.imageUrl}
               onChange={handleChange}
               required

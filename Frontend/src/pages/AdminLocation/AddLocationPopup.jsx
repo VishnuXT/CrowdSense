@@ -1,16 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AddLocationPopup.css";
+import { createLocation, getCategories } from "../../services/locationService";
 
-const AddLocationPopup = ({ onClose, onAddLocation }) => {
+const AddLocationPopup = ({ onClose, fetchLocations }) => {
+
   const [formData, setFormData] = useState({
     placeName: "",
     category: "",
     address: "",
     latitude: "",
     longitude: "",
-    popularityLevel: "Medium",
+    popularityScore: 50,
     imageUrl: "",
   });
+
+  
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      const response = await getCategories();
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -19,59 +37,71 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
     });
   };
 
-  const handleSubmit = () => {
-    // Validation
-
-    if (
-      !formData.placeName.trim() ||
-      !formData.category.trim() ||
-      !formData.address.trim() ||
-      !formData.latitude.trim() ||
-      !formData.longitude.trim() ||
-      !formData.popularityLevel.trim() ||
-      !formData.imageUrl.trim()
-    ) {
-      alert("Please fill all required fields");
-      return;
+  const getPopularityScore = (level) => {
+    switch (level) {
+      case "Very Low":
+        return 20;
+      case "Low":
+        return 40;
+      case "Medium":
+        return 60;
+      case "High":
+        return 80;
+      case "Very High":
+        return 100;
+      default:
+        return 60;
     }
+  };
 
-    const newLocation = {
-      id: Date.now(),
-      placeName: formData.placeName,
-      category: formData.category,
-      address: formData.address,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-      popularityLevel: formData.popularityLevel,
-      imageUrl: formData.imageUrl,
-      status: "Active",
-    };
+  const handleSubmit = async () => {
+    try {
+      if (
+        !formData.placeName.trim() ||
+        !formData.category ||
+        !formData.address.trim() ||
+        !formData.latitude.trim() ||
+        !formData.longitude.trim() ||
+        !formData.imageUrl.trim()
+      ) {
+        alert("Please fill all required fields");
+        return;
+      }
 
-    // Add location to AdminLocation table
+      const payload = {
+        name: formData.placeName,
+        address: formData.address,
+        latitude: parseFloat(formData.latitude),
+        longitude: parseFloat(formData.longitude),
+        category_id: Number(formData.category),
+        image_url: formData.imageUrl,
+        popularity_score: getPopularityScore(formData.popularityLevel),
+      };
 
-    if (onAddLocation) {
-      onAddLocation(newLocation);
+      const response = await createLocation(payload);
+
+      alert(response.data.message);
+
+      if (fetchLocations) {
+        await fetchLocations();
+      }
+
+      onClose();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to add location");
     }
-
-    // Close popup
-
-    onClose();
   };
 
   return (
     <div className="popup-overlay">
       <div className="popup-card">
-
         {/* Header */}
 
         <div className="popup-header">
           <h2>Add Location</h2>
 
-          <button
-            type="button"
-            className="close-btn"
-            onClick={onClose}
-          >
+          <button type="button" className="close-btn" onClick={onClose}>
             ×
           </button>
         </div>
@@ -79,7 +109,6 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
         {/* Body */}
 
         <div className="popup-body">
-
           <div className="form-group">
             <label>
               Place Name <span className="required">*</span>
@@ -106,21 +135,11 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
             >
               <option value="">Select Category</option>
 
-              <option value="Religious Places">
-                Religious Places
-              </option>
-
-              <option value="Tourist Places">
-                Tourist Places
-              </option>
-
-              <option value="Commercial Areas">
-                Commercial Areas
-              </option>
-
-              <option value="Public Places">
-                Public Places
-              </option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -139,7 +158,6 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
           </div>
 
           <div className="row">
-
             <div className="form-group">
               <label>
                 Latitude <span className="required">*</span>
@@ -167,7 +185,6 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
                 onChange={handleChange}
               />
             </div>
-
           </div>
 
           <div className="form-group">
@@ -203,41 +220,23 @@ const AddLocationPopup = ({ onClose, onAddLocation }) => {
           </div>
 
           <div className="form-group">
-            <label>
-              Status
-            </label>
+            <label>Status</label>
 
-            <input
-              type="text"
-              value="Active"
-              disabled
-            />
+            <input type="text" value="Active" disabled />
           </div>
-
         </div>
 
         {/* Footer */}
 
         <div className="popup-footer">
-
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={onClose}
-          >
+          <button type="button" className="cancel-btn" onClick={onClose}>
             Cancel
           </button>
 
-          <button
-            type="button"
-            className="add-btn"
-            onClick={handleSubmit}
-          >
+          <button type="button" className="add-btn" onClick={handleSubmit}>
             Add Location
           </button>
-
         </div>
-
       </div>
     </div>
   );

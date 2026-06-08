@@ -26,7 +26,7 @@ def get_locations():
 
     cur.execute(
         """
-        SELECT id, name, latitude, longitude
+        SELECT id, name, latitude, longitude ,address ,popularity_score
         FROM locations
         ORDER BY id ASC
         """
@@ -44,7 +44,9 @@ def get_locations():
             "id": row[0],
             "name": row[1],
             "latitude": row[2],
-            "longitude": row[3]
+            "longitude": row[3],
+            "address" : row[4],
+            "popularity_score" : row[5]
         })
 
     return result
@@ -184,9 +186,11 @@ def create_location(location: dict):
             address,
             latitude,
             longitude,
-            category_id
+            category_id,
+            popularity_score,
+            image_url
         )
-        VALUES (%s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s ,%s,%s)
         RETURNING id
         """,
         (
@@ -194,7 +198,9 @@ def create_location(location: dict):
             location["address"],
             location["latitude"],
             location["longitude"],
-            location["category_id"]
+            location["category_id"],
+            location["popularity_score"],
+            location["image_url"]
         )
     )
 
@@ -211,15 +217,12 @@ def create_location(location: dict):
     }
 
 
-# UPDATE LOCATION
 
-
-@router.put("/{id}")
-def update_location(id: int, location: dict):
+@router.get("/{id}")
+def get_location(id: int):
 
     conn = psycopg2.connect(
-     host="192.168.30.221",
-       
+        host="192.168.30.221",
         port=5432,
         database="crowdsense",
         user="postgres",
@@ -230,33 +233,38 @@ def update_location(id: int, location: dict):
 
     cur.execute(
         """
-        UPDATE locations
-        SET
-            name = %s,
-            address = %s,
-            latitude = %s,
-            longitude = %s,
-            category_id = %s
+        SELECT
+            id,
+            name,
+            address,
+            latitude,
+            longitude,
+            category_id,
+            popularity_score,
+            image_url
+        FROM locations
         WHERE id = %s
         """,
-        (
-            location["name"],
-            location["address"],
-            location["latitude"],
-            location["longitude"],
-            location["category_id"],
-            id
-        )
+        (id,)
     )
 
-    conn.commit()
+    row = cur.fetchone()
 
     cur.close()
     conn.close()
 
-    return {
-        "message": "Location updated successfully"
-    }
-    
-    
+    if row is None:
+        return {
+            "message": "Location not found"
+        }
 
+    return {
+        "id": row[0],
+        "name": row[1],
+        "address": row[2],
+        "latitude": row[3],
+        "longitude": row[4],
+        "category_id": row[5],
+        "popularity_score": row[6],
+        "image_url": row[7]
+    }

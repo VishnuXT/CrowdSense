@@ -47,7 +47,7 @@ const EditLocation = ({
 
       setFormData({
         placeName: data.name || "",
-        category: data.category_id || "",
+        category: data.category_id ? String(data.category_id) : "",
         address: data.address || "",
         latitude: data.latitude || "",
         longitude: data.longitude || "",

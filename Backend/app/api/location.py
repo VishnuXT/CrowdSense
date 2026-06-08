@@ -26,9 +26,12 @@ def get_locations():
 
     cur.execute(
         """
-        SELECT id, name, latitude, longitude ,address ,popularity_score
-        FROM locations
-        ORDER BY id ASC
+        SELECT l.id, l.name, l.latitude, l.longitude, l.address,
+               l.popularity_score, l.category_id, c.name AS category_name,
+               l.image_url
+        FROM locations l
+        LEFT JOIN categories c ON l.category_id = c.id
+        ORDER BY l.id ASC
         """
     )
 
@@ -45,8 +48,11 @@ def get_locations():
             "name": row[1],
             "latitude": row[2],
             "longitude": row[3],
-            "address" : row[4],
-            "popularity_score" : row[5]
+            "address": row[4],
+            "popularity_score": row[5],
+            "category_id": row[6],
+            "category_name": row[7],
+            "image_url": row[8]
         })
 
     return result
@@ -54,52 +60,6 @@ def get_locations():
 
 
 # GET LOCATION BY ID
-
-
-@router.get("/{id}")
-def get_location(id: int):
-
-    conn = psycopg2.connect(
-      host="192.168.30.221",
-        port=5432,
-        database="crowdsense",
-        user="postgres",
-        password="v1I2s3h4n5u6"
-    )
-
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-        SELECT id, name, address,
-               latitude, longitude,
-               category_id
-        FROM locations
-        WHERE id = %s
-        """,
-        (id,)
-    )
-
-    row = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    if row is None:
-        return {
-            "message": "Location not found"
-        }
-
-    result = {
-        "id": row[0],
-        "name": row[1],
-        "address": row[2],
-        "latitude": row[3],
-        "longitude": row[4],
-        "category_id": row[5]
-    }
-
-    return result
 
 
 @router.get("/category/{category_id}")

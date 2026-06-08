@@ -313,6 +313,7 @@ const AdminCategory = () => {
 
       {showDeactivateModal && (
         <DeactivateConfirmModal
+          entityLabel="Category"
           onClose={() => setShowDeactivateModal(false)}
           onConfirm={confirmDeactivate}
         />

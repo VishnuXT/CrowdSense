@@ -235,7 +235,7 @@ function Details() {
                 <span className="det-stat-label">Crowd Status</span>
                 <div className="det-stat-value">
                   <span className="value-lg">{crowdScore ?? "—"}</span>
-                  <span className="value-sm">/100</span>
+                  <span className="value-sm">%</span>
                 </div>
               </div>
             </div>

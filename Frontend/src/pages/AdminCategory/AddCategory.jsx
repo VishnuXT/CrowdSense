@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import "./AddCategory.css";
 
-const AddCategory = ({ onClose, onAddCategory }) => {
+const AddCategory = ({ onClose, onAdd }) => {
   const [category, setCategory] = useState({
     name: "",
     description: "",
-    status: "Active",
+    status: "ACTIVE",
   });
 
   const handleChange = (e) => {
@@ -15,29 +15,35 @@ const AddCategory = ({ onClose, onAddCategory }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!category.name.trim()) {
-      alert("Category Name is required");
+      alert("Category name is required");
       return;
     }
 
-    const newCategory = {
-      id: Date.now(),
-      name: category.name,
-      description: category.description,
-      status: "Active",
-    };
+    try {
+      await onAdd(category);
 
-    onAddCategory(newCategory);
+      setCategory({
+        name: "",
+        description: "",
+        status: "ACTIVE",
+      });
 
-    onClose();
+      onClose();
+    } catch (error) {
+      console.log(error);
+      alert("Failed to add category");
+    }
   };
 
   return (
     <div className="modal-overlay">
       <div className="add-category-modal">
+        {/* HEADER */}
+
         <div className="modal-header">
           <h2>Add Category</h2>
 
@@ -46,7 +52,11 @@ const AddCategory = ({ onClose, onAddCategory }) => {
           </button>
         </div>
 
+        {/* FORM */}
+
         <form onSubmit={handleSubmit}>
+          {/* CATEGORY NAME */}
+
           <div className="form-group">
             <label>
               Category Name <span>*</span>
@@ -62,6 +72,8 @@ const AddCategory = ({ onClose, onAddCategory }) => {
             />
           </div>
 
+          {/* DESCRIPTION */}
+
           <div className="form-group">
             <label>Description</label>
 
@@ -74,11 +86,15 @@ const AddCategory = ({ onClose, onAddCategory }) => {
             />
           </div>
 
+          {/* STATUS */}
+
           <div className="form-group">
             <label>Status</label>
 
-            <input type="text" value="Active" disabled />
+            <input type="text" value="ACTIVE" disabled />
           </div>
+
+          {/* FOOTER */}
 
           <div className="modal-footer">
             <button type="button" className="cancel-btn" onClick={onClose}>

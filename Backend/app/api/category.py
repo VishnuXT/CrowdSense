@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+  
 import psycopg2
 
 router = APIRouter(
@@ -23,8 +24,6 @@ def get_categories():
     cur.execute("SELECT * FROM categories")
 
     rows = cur.fetchall()
-    
-    print(rows)
 
     cur.close()
     conn.close()
@@ -35,13 +34,11 @@ def get_categories():
         result.append({
             "id": row[0],
             "name": row[1],
-            # "description": row[2]
+            "description": row[2],
+            "status": row[3]
         })
-    print(result)
+
     return result
-
-
-
 
 
 
@@ -67,7 +64,6 @@ def get_category(id: int):
     )
 
     row = cur.fetchone()
-    print(row)
 
     cur.close()
     conn.close()
@@ -77,13 +73,12 @@ def get_category(id: int):
             "message": "Category not found"
         }
 
-    result = {
+    return {
         "id": row[0],
         "name": row[1],
-        "description": row[2]
+        "description": row[2],
+        "status": row[3]
     }
-
-    return result
 
 
 
@@ -109,13 +104,17 @@ def create_category(category: dict):
 
     cur.execute(
         """
-        INSERT INTO categories (name, description)
-        VALUES (%s, %s)
+        INSERT INTO categories
+        (name, description, status)
+
+        VALUES (%s, %s, %s)
+
         RETURNING id
         """,
         (
             category["name"],
-            category["description"]
+            category["description"],
+            "ACTIVE"
         )
     )
 
@@ -138,6 +137,7 @@ def create_category(category: dict):
 
 # UPDATE CATEGORY
 
+# UPDATE CATEGORY
 
 @router.put("/{id}")
 def update_category(id: int, category: dict):
@@ -155,7 +155,8 @@ def update_category(id: int, category: dict):
     cur.execute(
         """
         UPDATE categories
-        SET name = %s,
+        SET
+            name = %s,
             description = %s
         WHERE id = %s
         """,
@@ -174,8 +175,3 @@ def update_category(id: int, category: dict):
     return {
         "message": "Category updated successfully"
     }
-    
-    
-    
-    
-    

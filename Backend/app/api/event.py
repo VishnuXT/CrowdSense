@@ -68,7 +68,6 @@ def get_events():
         SELECT
             e.id,
             e.title,
-            e.event_type,
             l.name AS location_name,
             e.start_date,
             e.end_date,
@@ -87,7 +86,7 @@ def get_events():
 
     result = []
     for row in rows:
-        event_id, title, event_type, location_name, start_date, end_date, expected_crowd, status, description, location_id = row
+        event_id, title, location_name, start_date, end_date, expected_crowd, status, description, location_id = row
 
         # Build event date and times from timestamps
         event_date = start_date.strftime("%Y-%m-%d") if start_date else ""
@@ -97,7 +96,7 @@ def get_events():
         result.append({
             "id":          event_id,
             "eventName":   title or "",
-            "eventType":   event_type or "General",
+            "eventType":   "General",
             "location":    location_name or "",
             "location_id": location_id,
             "eventDate":   event_date,

@@ -37,7 +37,7 @@ export const updateCategoryApi = async (id, data) => {
 // DELETE / INACTIVE
 
 export const deactivateCategoryApi = async (id) => {
-  return await axios.put(
-    `${BASE_URL}/inactive/${id}`
+  return await axios.patch(
+    `${BASE_URL}/${id}/deactivate`
   );
 };

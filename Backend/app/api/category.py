@@ -21,7 +21,7 @@ def get_categories():
 
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM categories")
+    cur.execute("SELECT id, name, description, status FROM categories ORDER BY id ASC")
 
     rows = cur.fetchall()
 
@@ -35,7 +35,7 @@ def get_categories():
             "id": row[0],
             "name": row[1],
             "description": row[2],
-            "status": row[3]
+            "status": row[3] or "ACTIVE"
         })
 
     return result
@@ -59,7 +59,7 @@ def get_category(id: int):
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM categories WHERE id = %s",
+        "SELECT id, name, description, status FROM categories WHERE id = %s",
         (id,)
     )
 
@@ -77,7 +77,7 @@ def get_category(id: int):
         "id": row[0],
         "name": row[1],
         "description": row[2],
-        "status": row[3]
+        "status": row[3] or "ACTIVE"
     }
 
 
@@ -104,17 +104,13 @@ def create_category(category: dict):
 
     cur.execute(
         """
-        INSERT INTO categories
-        (name, description, status)
-
-        VALUES (%s, %s, %s)
-
+        INSERT INTO categories (name, description, status)
+        VALUES (%s, %s, 'ACTIVE')
         RETURNING id
         """,
         (
             category["name"],
             category["description"],
-            "ACTIVE"
         )
     )
 
@@ -129,6 +125,33 @@ def create_category(category: dict):
         "message": "Category created successfully",
         "id": new_id
     }
+
+
+# DEACTIVATE CATEGORY
+
+@router.patch("/{id}/deactivate")
+def deactivate_category(id: int):
+
+    conn = psycopg2.connect(
+        host="192.168.30.221",
+        port=5432,
+        database="crowdsense",
+        user="postgres",
+        password="v1I2s3h4n5u6"
+    )
+
+    cur = conn.cursor()
+
+    cur.execute(
+        "UPDATE categories SET status = 'INACTIVE' WHERE id = %s",
+        (id,)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {"message": "Category deactivated successfully"}
     
     
     

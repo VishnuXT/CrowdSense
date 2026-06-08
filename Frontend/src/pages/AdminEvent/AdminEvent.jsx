@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AdminEvent.css";
 
 import { FiEdit, FiTrash2 } from "react-icons/fi";
@@ -9,101 +9,12 @@ import DeactivateConfirmModal from "../../components/DeactivateConfirmModal/Deac
 import StatusFilter from "../../components/StatusFilter/StatusFilter";
 import { useToast } from "../../components/Toast/ToastProvider";
 
+const API_BASE = "http://localhost:8000/api/events";
+
 const AdminEvent = () => {
   const { showToast } = useToast();
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      eventName: "Attukal Pongala",
-      eventType: "Religious",
-      location: "Attukal Temple",
-      eventDate: "2026-03-15",
-      startTime: "06:00",
-      endTime: "22:00",
-      crowdLevel: "High",
-      status: "Active",
-      description:
-        "Annual religious festival attended by thousands of devotees.",
-    },
-
-    {
-      id: 2,
-      eventName: "Kochi Music Fest",
-      eventType: "Music",
-      location: "Kochi Ground",
-      eventDate: "2026-04-20",
-      startTime: "17:00",
-      endTime: "23:00",
-      crowdLevel: "Medium",
-      status: "Active",
-      description: "Live music performances by famous artists and bands.",
-    },
-
-    {
-      id: 3,
-      eventName: "State Football League",
-      eventType: "Sports",
-      location: "Greenfield Stadium",
-      eventDate: "2026-05-10",
-      startTime: "15:00",
-      endTime: "20:00",
-      crowdLevel: "High",
-      status: "Inactive",
-      description: "Regional football championship with multiple teams.",
-    },
-
-    {
-      id: 4,
-      eventName: "Christmas Celebration",
-      eventType: "Festive",
-      location: "Lulu Mall",
-      eventDate: "2026-12-25",
-      startTime: "10:00",
-      endTime: "22:00",
-      crowdLevel: "High",
-      status: "Active",
-      description: "Grand Christmas celebration and shopping festival.",
-    },
-
-    {
-      id: 5,
-      eventName: "New Year Carnival",
-      eventType: "Entertainment",
-      location: "Kovalam Beach",
-      eventDate: "2026-12-31",
-      startTime: "18:00",
-      endTime: "02:00",
-      crowdLevel: "Very High",
-      status: "Active",
-      description: "New Year beach party and countdown event.",
-    },
-
-    {
-      id: 6,
-      eventName: "Food & Craft Fair",
-      eventType: "Exhibition",
-      location: "Kanakakunnu Ground",
-      eventDate: "2026-11-05",
-      startTime: "11:00",
-      endTime: "21:00",
-      crowdLevel: "Medium",
-      status: "Active",
-      description: "Traditional food stall fair and handcraft showcase.",
-    },
-
-    {
-      id: 7,
-      eventName: "Independence Day Parade",
-      eventType: "National",
-      location: "Central Stadium",
-      eventDate: "2026-08-15",
-      startTime: "08:00",
-      endTime: "12:00",
-      crowdLevel: "Medium",
-      status: "Inactive",
-      description: "Annual flag hoisting and student parade.",
-    },
-  ]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -114,17 +25,36 @@ const AdminEvent = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   /* =========================
+     FETCH EVENTS FROM API
+  ========================= */
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/`);
+      const data = await res.json();
+      setEvents(data);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      showToast("Failed to load events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  /* =========================
      EDIT EVENT
   ========================= */
 
   const handleEdit = (event) => {
     setSelectedEvent(event);
-
     setShowEditPopup(true);
   };
 
   /* =========================
-     DELETE EVENT
+     DELETE / DEACTIVATE EVENT
   ========================= */
 
   const openDeactivateModal = (id) => {
@@ -132,28 +62,30 @@ const AdminEvent = () => {
     setShowDeactivateModal(true);
   };
 
-  const confirmDeactivate = () => {
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === deactivateId ? { ...event, status: "Inactive" } : event,
-      ),
-    );
+  const confirmDeactivate = async () => {
+    try {
+      await fetch(`${API_BASE}/${deactivateId}`, { method: "DELETE" });
+      await fetchEvents();
+      showToast("Event deactivated successfully");
+    } catch (err) {
+      showToast("Failed to deactivate event");
+    }
     setShowDeactivateModal(false);
     setDeactivateId(null);
-    showToast("Event deactivated successfully");
   };
 
-  const reactivateEvent = (id) => {
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === id ? { ...event, status: "Active" } : event,
-      ),
-    );
-    showToast("Event reactivated successfully");
+  const reactivateEvent = async (id) => {
+    try {
+      await fetch(`${API_BASE}/${id}/reactivate`, { method: "PATCH" });
+      await fetchEvents();
+      showToast("Event reactivated successfully");
+    } catch (err) {
+      showToast("Failed to reactivate event");
+    }
   };
 
   /* =========================
-     SEARCH
+     SEARCH & FILTER
   ========================= */
 
   const filteredEvents = events.filter((event) => {
@@ -186,9 +118,10 @@ const AdminEvent = () => {
         </div>
 
         <AddEvent
-          events={events}
-          setEvents={setEvents}
-          onEventAdded={() => showToast("Event added successfully")}
+          onEventAdded={() => {
+            fetchEvents();
+            showToast("Event added successfully");
+          }}
         />
       </div>
 
@@ -230,105 +163,101 @@ const AdminEvent = () => {
         {/* Table */}
 
         <div className="table-wrapper">
-          <table className="event-table">
-            <thead>
-              <tr>
-                <th>Event Name</th>
+          {loading ? (
+            <div className="no-data">Loading events...</div>
+          ) : (
+            <table className="event-table">
+              <thead>
+                <tr>
+                  <th>Event Name</th>
 
-                <th>Type</th>
+                  <th>Type</th>
 
-                <th>Location</th>
+                  <th>Location</th>
 
-                <th>Date</th>
+                  <th>Date</th>
 
-                <th>Crowd</th>
+                  <th>Crowd</th>
 
-                {/* <th>Status</th> */}
+                  {/* <th>Status</th> */}
 
-                <th>Actions</th>
-              </tr>
-            </thead>
+                  <th>Actions</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {currentEvents.length > 0 ? (
-                currentEvents.map((event) => (
-                  <tr key={event.id}>
-                    <td>{event.eventName}</td>
+              <tbody>
+                {currentEvents.length > 0 ? (
+                  currentEvents.map((event) => (
+                    <tr key={event.id}>
+                      <td>{event.eventName}</td>
 
-                    <td>{event.eventType}</td>
+                      <td>{event.eventType}</td>
 
-                    <td>{event.location}</td>
+                      <td>{event.location}</td>
 
-                    <td>{event.eventDate}</td>
+                      <td>{event.eventDate}</td>
 
-                    <td>
-                      <span
-                        className={`crowd-level ${event.crowdLevel.toLowerCase()}`}
-                      >
-                        {event.crowdLevel}
-                      </span>
-                    </td>
-
-                    {/* <td>
-                      <span
-                        className={`status ${
-                          event.status === "Active" ? "active" : "inactive"
-                        }`}
-                      >
-                        {event.status}
-                      </span>
-                    </td> */}
-
-                    {/* ================= ACTIONS ================= */}
-
-                    <td>
-                      <div className="action-buttons">
-                        {/* Edit */}
-
-                        <button
-                          className="edit-btn"
-                          onClick={() => handleEdit(event)}
+                      <td>
+                        <span
+                          className={`crowd-level ${event.crowdLevel
+                            .toLowerCase()
+                            .replace(" ", "-")}`}
                         >
-                          <FiEdit />
-                        </button>
+                          {event.crowdLevel}
+                        </span>
+                      </td>
 
-                        {/* Delete */}
+                      {/* ================= ACTIONS ================= */}
 
-                        <button
-                          type="button"
-                          className={
-                            event.status === "Active"
-                              ? "delete-btn"
-                              : "delete-btn reactivate-btn"
-                          }
-                          title={
-                            event.status === "Active"
-                              ? "Deactivate event"
-                              : "Reactivate event"
-                          }
-                          onClick={() => {
-                            if (event.status === "Active") {
-                              openDeactivateModal(event.id);
-                            } else {
-                              reactivateEvent(event.id);
+                      <td>
+                        <div className="action-buttons">
+                          {/* Edit */}
+
+                          <button
+                            className="edit-btn"
+                            onClick={() => handleEdit(event)}
+                          >
+                            <FiEdit />
+                          </button>
+
+                          {/* Delete / Reactivate */}
+
+                          <button
+                            type="button"
+                            className={
+                              event.status === "Active"
+                                ? "delete-btn"
+                                : "delete-btn reactivate-btn"
                             }
-                          }}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                            title={
+                              event.status === "Active"
+                                ? "Deactivate event"
+                                : "Reactivate event"
+                            }
+                            onClick={() => {
+                              if (event.status === "Active") {
+                                openDeactivateModal(event.id);
+                              } else {
+                                reactivateEvent(event.id);
+                              }
+                            }}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="no-data">
+                      No Events Found
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="no-data">
-                    No Events Found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Pagination */}
@@ -353,7 +282,9 @@ const AdminEvent = () => {
             ))}
 
             <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={activePage === totalPages}
               className="page-btn next-btn"
             >
@@ -369,9 +300,10 @@ const AdminEvent = () => {
         showEditPopup={showEditPopup}
         setShowEditPopup={setShowEditPopup}
         selectedEvent={selectedEvent}
-        events={events}
-        setEvents={setEvents}
-        onEventUpdated={() => showToast("Event updated successfully")}
+        onEventUpdated={() => {
+          fetchEvents();
+          showToast("Event updated successfully");
+        }}
       />
 
       {/* ================= DELETE EVENT ================= */}
